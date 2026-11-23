@@ -133,6 +133,45 @@ def test_lowest_degree_ansatz_cannot_meet_both_hard_normalisations():
                - mpmath.mpf("1.4525472652249223")) < 1e-15
 
 
+# --------------------------------------------------------------------------- Gaussian moments (review fix)
+
+def test_lower_incomplete_gamma_has_no_cancellation_at_order_80():
+    """Regression (review of PR #1): the finite-sum formula returned 0 for k = 80, z = pi at 60 digits."""
+    with mpmath.workdps(60):
+        z = mpmath.pi
+        value = cf._lower_gamma_int(80, z)
+        assert value != 0
+        assert abs(value / mpmath.mpf("1.03094590495115e37") - 1) < mpmath.mpf("1e-14")
+        # Independent series: gamma(s, z) = z^s e^(-z) sum_n z^n / (s (s+1) ... (s+n)), positive terms.
+        s, term, total, n = 81, mpmath.mpf(1) / 81, mpmath.mpf(1) / 81, 0
+        while term > total * mpmath.mpf(10) ** -70:
+            n += 1
+            term = term * z / (s + n)
+            total += term
+        series = z ** s * mpmath.exp(-z) * total
+        assert abs(value / series - 1) < mpmath.mpf("1e-50")
+
+
+@pytest.mark.parametrize("r", ["0.1", "0.5", "1", "2"])
+def test_gaussian_moments_through_order_80_match_quadrature(r):
+    """numerical-high-precision: relative error of every moment k = 0..80 against quadrature.
+
+    Includes very small values (r = 0.1, k = 80 is about 1e-238). Quadrature in u = x/r with
+    breakpoints accumulating at u = 1, where x^(2k+1) concentrates.
+    """
+    with mpmath.workdps(60):
+        r = mpmath.mpf(r)
+        pts = [0] + [1 - mpmath.mpf(2) ** -j for j in range(1, 12)] + [1]
+        worst = mpmath.mpf(0)
+        for k in range(81):
+            exact = cf.gaussian_moment(k, r)
+            quad = r ** (2 * k + 2) * mpmath.quad(
+                lambda u, k=k: u ** (2 * k + 1) * mpmath.exp(-mpmath.pi * r * r * u * u), pts)
+            assert exact > 0
+            worst = max(worst, abs(quad / exact - 1))
+        assert worst < mpmath.mpf("1e-45"), worst
+
+
 # --------------------------------------------------------------------------- B1-C: triangle baseline
 
 def test_triangle_baseline_exact_and_numerical():

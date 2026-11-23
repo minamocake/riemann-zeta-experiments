@@ -94,6 +94,7 @@ class InadmissibleError(ValueError):
     """Raised when a quantity is requested that is undefined for the given function."""
 
 
+
 # =========================================================================== exact Q[pi, 1/pi]
 
 @dataclass(frozen=True)
@@ -566,9 +567,24 @@ def lowest_degree_normalisation_gap(R: Rational, c: Rational = 1) -> PiLaurent:
 # =========================================================================== objective
 
 def _lower_gamma_int(k: int, z):
-    """gamma(k + 1, z) = k! (1 - exp(-z) sum_{m <= k} z^m / m!) for integer k >= 0."""
-    s = mpmath.fsum(z ** m / mpmath.factorial(m) for m in range(k + 1))
-    return mpmath.factorial(k) * (1 - mpmath.exp(-z) * s)
+    """Lower incomplete gamma gamma(k + 1, z) for integer k >= 0 and z >= 0, via mpmath.gammainc.
+
+    The finite-sum identity gamma(k + 1, z) = k! (1 - exp(-z) sum_{m <= k} z^m / m!) is exact but
+    numerically useless for large k / small z: the bracket is about z^(k+1) / (k + 1)! and is lost
+    to cancellation (k = 80, z = pi gives 0 at 60 digits instead of 1.0309459049511504e37).
+    """
+    if k < 0:
+        raise ValueError("k must be >= 0")
+    return mpmath.gammainc(k + 1, 0, z)
+
+
+def gaussian_moment(k: int, r):
+    """int_0^r x^(2k+1) exp(-pi x^2) dx = gamma(k + 1, pi r^2) / (2 pi^(k + 1)).
+
+    Rigor: numerical-high-precision (mpmath at the current working precision).
+    """
+    r = mpmath.mpf(r)
+    return _lower_gamma_int(k, mpmath.pi * r * r) / (2 * mpmath.pi ** (k + 1))
 
 
 def z_closed_form(f: GaussianPolynomial, dps: int = 50):
@@ -576,14 +592,14 @@ def z_closed_form(f: GaussianPolynomial, dps: int = 50):
 
     Uses only the undilated data: Z_inv = (p(0) r0 + (2 / r0) I0) / (T p)(0) with
     I0 = int_0^{r0} x p(x) exp(-pi x^2) dx = sum_k c_k gamma(k + 1, pi r0^2) / (2 pi^(k + 1)).
-    Rigor: numerical-high-precision.
+    Each moment is computed stably (`gaussian_moment`). The sum over k can still cancel when the
+    coefficients of p have mixed signs and large size (high degree in the monomial basis); B2
+    must choose a basis or precision accordingly. Rigor: numerical-high-precision.
     """
     sr = f.sign_radius_undilated()
     with mpmath.workdps(dps + 10):
         r0 = sr.radius_mp()
-        z = mpmath.pi * r0 * r0
-        i0 = mpmath.fsum(c.to_mp() * _lower_gamma_int(k, z) / (2 * mpmath.pi ** (k + 1))
-                         for k, c in enumerate(f.p))
+        i0 = mpmath.fsum(c.to_mp() * gaussian_moment(k, r0) for k, c in enumerate(f.p))
         num = poly_value_at_zero(f.p).to_mp() * r0 + 2 * i0 / r0
         val = num / poly_value_at_zero(f.fourier_poly()).to_mp()
     with mpmath.workdps(dps):
