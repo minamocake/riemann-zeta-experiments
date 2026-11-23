@@ -30,7 +30,12 @@ Two formulations
 (B) One normalisation and the dilation-invariant functional:
         (Tq)(0) = 1,  q(0) free,   minimise  Z_inv = rho q(0) + (2 / rho) sum_k q_k M_k(rho).
 Map A -> B: q_B = a0 q_A satisfies (T q_B)(0) = 1 and q_B(0) = a0, and Z_inv(q_B) = Z_A. So
-(A) is (B) plus the extra constraint q(0) = a0 (at rho = 1), and V_B <= V_A.
+(A) is (B) plus the extra constraint q(0) = a0 (at rho = 1), and V_B <= V_A. The dual multiplier
+of that extra constraint is a LOCAL sensitivity (derivative of V_A with respect to its right-hand
+side at the current value); it does not by itself account for the finite gap V_A - V_B, which
+can involve changes of the active set (zero eigenvalues of X_i, contact points) along the way.
+In formulation B, q(0) = rho^2 X_2[0, 0] >= 0 follows from PSD, but normalisation needs
+q(0) > 0 strictly; this is checked explicitly (`q0_positive`).
 
 The meaningful sensitivity parameter is rho = R / (Gaussian width): Z_inv is invariant under a
 single common dilation, which moves R and the width together. CGdL search R >= 1 (rho >= 1), so
@@ -53,6 +58,7 @@ import numpy as np
 from . import cgdl_fourier as cf
 
 A0 = 1.0 / (1.0 - 1.0 / (2.0 * np.pi))
+POSITIVITY_MARGIN = 1e-8      # q(0) must exceed this for a formulation-B candidate to count as normalisable
 A0_INV_EXACT = 1 - cf.PiLaurent.pi_power(-1, Fraction(1, 2))     # 1/a0 = 1 - 1/(2 pi), exactly
 
 
@@ -104,6 +110,8 @@ class B2Result:
     duals: dict[str, object] = field(default_factory=dict)
     dual_psd_min_eigenvalues: dict[str, float] = field(default_factory=dict)
     complementarity: dict[str, float] = field(default_factory=dict)
+    kkt: dict[str, float] = field(default_factory=dict)
+    q0_positive: bool | None = None
     numerically_acceptable: bool = False
     notes: list[str] = field(default_factory=list)
 
@@ -185,13 +193,90 @@ def solve(formulation: str, m: int, rho: float = 1.0, a0: float = A0, tol: float
             res.dual_psd_min_eigenvalues[name] = float(np.linalg.eigvalsh((S + S.T) / 2).min())
             res.complementarity[name] = float(np.trace(S @ X[name].value))
 
+    res.kkt = kkt_diagnostics(formulation, m, rho, a0, res.grams, res.duals, res.objective)
+    # q(0) = rho^2 X2[0, 0] >= 0 follows from PSD; normalisation needs q(0) > 0 strictly.
+    res.q0_positive = bool(qv[0] > POSITIVITY_MARGIN)
+    if formulation == "B" and not res.q0_positive:
+        res.notes.append(f"q(0) = {qv[0]:.3e} is not > {POSITIVITY_MARGIN}: candidate is not normalisable")
+
     worst = max(abs(res.primal_residuals["fourier_match_max_abs"]),
                 *(abs(v) for k, v in res.primal_residuals.items() if k.endswith("minus_1")))
     res.numerically_acceptable = (prob.status == cp.OPTIMAL and worst <= tol
-                                  and res.primal_residuals["min_gram_eigenvalue"] >= -tol)
+                                  and res.primal_residuals["min_gram_eigenvalue"] >= -tol
+                                  and res.q0_positive
+                                  and abs(res.kkt["stationarity_max_abs"]) <= 100 * tol
+                                  and abs(res.kkt["duality_gap"]) <= 100 * tol)
     if not res.numerically_acceptable:
         res.notes.append(f"residuals exceed tol = {tol} or PSD violation; treat as numerically uncertain")
     return res
+
+
+def _affine_parts(formulation: str, m: int, rho: float, a0: float, X2, X3, X4):
+    """Objective value and constraint expressions (lhs - rhs) at given Gram matrices (numpy)."""
+    ev = evaluate_point(formulation, m, X2, X3, X4, rho, a0)
+    N = deg_q_max(m) + 1
+    q = np.array(ev["q"])
+    tq = transform_matrix(N).T @ q
+    s3 = np.zeros(N)
+    n = m + 1
+    for i in range(n):
+        for j in range(n):
+            s3[i + j] += np.asarray(X3)[i, j]
+            s3[i + j + 1] += np.asarray(X4)[i, j]
+    cons = {"fourier_match": tq - s3}
+    if formulation == "A":
+        cons["q0"] = np.array([q[0] - 1])
+        cons["a0_tq0"] = np.array([a0 * tq[0] - 1])
+    else:
+        cons["tq0"] = np.array([tq[0] - 1])
+    return ev["objective"], cons
+
+
+def kkt_diagnostics(formulation: str, m: int, rho: float, a0: float, grams: dict, duals: dict,
+                    primal_value: float) -> dict:
+    """KKT stationarity residual and primal-dual gap, from an explicit numpy model of the SDP.
+
+    The SDP is: minimise <C, X> subject to A_i(X) - b_i = 0 and X_b PSD (blocks b = X2, X3, X4).
+    Coefficient matrices are obtained by probing the affine maps with symmetric basis matrices
+    (independent of CVXPY's internal canonicalisation). With CVXPY's convention (Lagrangian
+    <C, X> + sum_i y_i (A_i(X) - b_i) - sum_b <S_b, X_b>), stationarity reads
+    C_b + sum_i y_i A_ib - S_b = 0 and the dual objective is -sum_i y_i b_i. Reported:
+    max |stationarity residual| over all blocks, primal and dual objectives, and their gap.
+    """
+    n = m + 1
+    zero = [np.zeros((n, n))] * 3
+    names = ("X2", "X3", "X4")
+    c0, cons0 = _affine_parts(formulation, m, rho, a0, *zero)       # c0 = 0, cons0 = -b
+    C = {b: np.zeros((n, n)) for b in names}
+    A = {k: {b: np.zeros((len(v), n, n)) for b in names} for k, v in cons0.items()}
+    for bi, b in enumerate(names):
+        for j in range(n):
+            for k in range(j, n):
+                E = np.zeros((n, n))
+                E[j, k] = E[k, j] = 1.0
+                mats = list(zero)
+                mats[bi] = E
+                cv, cons = _affine_parts(formulation, m, rho, a0, *mats)
+                w = 1.0 if j == k else 0.5          # <M, E> = 2 M_jk off the diagonal
+                C[b][j, k] = C[b][k, j] = (cv - c0) * w
+                for name in cons:
+                    d = (cons[name] - cons0[name]) * w
+                    A[name][b][:, j, k] = d
+                    A[name][b][:, k, j] = d
+    worst = 0.0
+    for b in names:
+        S = np.asarray(duals[b])
+        R = C[b] - S
+        for name in cons0:
+            y = np.atleast_1d(np.asarray(duals[name], dtype=float))
+            R = R + np.tensordot(y, A[name][b], axes=1)
+        worst = max(worst, float(np.max(np.abs(R))))
+    dual_value = 0.0
+    for name, v in cons0.items():             # v = -b
+        y = np.atleast_1d(np.asarray(duals[name], dtype=float))
+        dual_value += float(y @ v)            # -sum y_i b_i
+    return {"stationarity_max_abs": worst, "primal_objective": float(primal_value),
+            "dual_objective": dual_value, "duality_gap": float(primal_value) - dual_value}
 
 
 def map_a_to_b(q_a: list[float], a0: float = A0) -> list[float]:
@@ -230,6 +315,14 @@ def independent_checks(res: B2Result, dps: int = 40) -> dict:
         out["z_vs_solver_abs_diff"] = abs(out["z_closed_form"] - res.objective)
     fc = cf.fourier_sign_check(f)
     out["fourier_sign"] = {"passed": fc.passed, "rigor": fc.rigor, "detail": fc.detail}
+    mn = cf.even_poly_minimum(f.fourier_poly(), dps)
+    out["fourier_stationary_minimum"] = {
+        "unbounded_below": mn["unbounded_below"],
+        "min_value": None if mn["min_value"] is None else float(mn["min_value"]),
+        "argmin_u": None if mn["argmin_u"] is None else float(mn["argmin_u"]),
+        "rigor": mn["rigor"],
+        "note": "continuous minimum of (Tq)(u) over u >= 0 from stationary points; not a certificate"}
+    out["q0_exact_binary_value_positive"] = Fraction(res.q[0]) > 0
     with mpmath.workdps(dps):
         out["f0"] = float(f.f(0))
         out["fhat0"] = float(f.fhat(0))
@@ -265,6 +358,7 @@ def evaluate_point(formulation: str, m: int, X2, X3, X4, rho: float = 1.0, a0: f
     rhs[1:] += s4
     Mk = moments(N, rho)
     out = {"q": q.tolist(), "fourier_match_max_abs": float(np.max(np.abs(tq - rhs))),
+           "q0_positive": bool(q[0] > POSITIVITY_MARGIN),
            "min_gram_eigenvalue": float(min(np.linalg.eigvalsh(Y).min() for Y in mats))}
     if formulation == "A":
         out["q0_minus_1"] = float(q[0] - 1)

@@ -155,3 +155,73 @@ def test_duals_satisfy_the_homogeneity_identity(runs):
     for (F, m), r in runs.items():
         names = ("q0", "a0_tq0") if F == "A" else ("tq0",)
         assert abs(-sum(r.duals[n] for n in names) - r.objective) < 1e-7, (F, m)
+
+
+# --------------------------------------------------------------------------- review of PR #2
+
+def _saved_b_m1_q():
+    import json
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "experiments/cgdl_reproduction/b2_mini/results/b2_mini_results.json"
+    runs = json.loads(path.read_text(encoding="utf-8"))["runs"]
+    return next(e for e in runs if e["result"]["formulation"] == "B" and e["result"]["m"] == 1)["result"]["q"]
+
+
+def test_fourier_near_contact_from_saved_coefficients():
+    """numerical-high-precision: continuous minimum of (Tq)(u) for the saved B, m = 1 candidate.
+
+    About 4.0928e-9 at u = 1.0668272166, far below the sampled grid minimum 4.8554e-7. This is
+    neither a positivity certificate nor a proof of an exact double zero.
+    """
+    from fractions import Fraction
+
+    from riemann_research import cgdl_fourier as cf
+    q = _saved_b_m1_q()
+    mn = cf.even_poly_minimum(cf.transform_laguerre(cf.even_poly(Fraction(c) for c in q)))
+    assert not mn["unbounded_below"] and mn["rigor"] == "numerical-high-precision"
+    assert abs(float(mn["min_value"]) - 4.092813391e-9) < 1e-17
+    assert abs(float(mn["argmin_u"]) - 1.0668272166) < 1e-9
+    assert float(mn["min_value"]) < 4.8554e-7 / 100
+
+
+@requires_cvxpy
+def test_stationary_minimum_reported_for_fresh_runs(runs):
+    ind = sdp.independent_checks(runs["B", 1])["fourier_stationary_minimum"]
+    assert 0 < ind["min_value"] < 1e-7 and abs(ind["argmin_u"] - 1.0668272) < 1e-5
+    ind_a = sdp.independent_checks(runs["A", 1])["fourier_stationary_minimum"]
+    assert ind_a["min_value"] > 0.8 and ind_a["argmin_u"] == 0   # A is far from Fourier contact
+
+
+def test_q0_positivity_is_checked_explicitly():
+    """PSD only gives q(0) = rho^2 X2[0,0] >= 0; a zero q(0) must be reported as not normalisable."""
+    ev = sdp.evaluate_point("B", 1, np.diag([0.0, 1.0]), np.diag([1.0, 1.0]), np.diag([1.0, 1.0]))
+    assert ev["q"][0] == 0 and ev["q0_positive"] is False
+    ev = sdp.evaluate_point("B", 0, [[1.0]], [[1.0]], [[1.0]])
+    assert ev["q0_positive"] is True
+
+
+@requires_cvxpy
+def test_q0_positive_for_all_candidates(runs):
+    for r in runs.values():
+        assert r.q0_positive is True
+        assert sdp.independent_checks(r)["q0_exact_binary_value_positive"] is True
+
+
+@requires_cvxpy
+def test_kkt_stationarity_and_duality_gap(runs):
+    """Explicit KKT stationarity residual and primal-dual gap from a numpy model of the SDP."""
+    for (F, m), r in runs.items():
+        k = r.kkt
+        assert k["stationarity_max_abs"] < 1e-8, (F, m, k)
+        assert abs(k["duality_gap"]) < 1e-8, (F, m, k)
+        assert abs(k["dual_objective"] - r.objective) < 1e-8
+
+
+@requires_cvxpy
+def test_kkt_diagnostic_detects_wrong_duals(runs):
+    """Corrupting a dual multiplier must show up in the stationarity residual."""
+    r = runs["B", 1]
+    bad = dict(r.duals)
+    bad["tq0"] = r.duals["tq0"] * 1.01
+    k = sdp.kkt_diagnostics("B", 1, 1.0, sdp.A0, r.grams, bad, r.objective)
+    assert k["stationarity_max_abs"] > 1e-4 and abs(k["duality_gap"]) > 1e-3
