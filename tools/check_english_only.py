@@ -8,14 +8,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CJK = re.compile("[\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uac00-\\ud7af\\uff66-\\uff9f\\u3000-\\u303f]")
-SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", "outputs", ".venv"}
+# Generated, untracked directories. .ruff_cache holds binary cache files without a suffix; decoding
+# them as UTF-8 can produce CJK code points and false failures (CI on main, 1e4d6d1).
+SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", ".ruff_cache", "outputs", ".venv"}
 TEXT_SUFFIXES = {".py", ".md", ".yaml", ".yml", ".json", ".toml", ".cff", ".txt", ".csv", ".cfg", ".sha256", ""}
 
 
-def main() -> int:
+def find_problems(root: Path = ROOT) -> list[str]:
     problems = []
-    for p in ROOT.rglob("*"):
-        rel = p.relative_to(ROOT)
+    for p in root.rglob("*"):
+        rel = p.relative_to(root)
         if set(rel.parts) & SKIP_DIRS:
             continue
         if CJK.search(str(rel)):
@@ -24,6 +26,11 @@ def main() -> int:
             for n, line in enumerate(p.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
                 if CJK.search(line):
                     problems.append(f"{rel}:{n}: non-English text")
+    return problems
+
+
+def main(root: Path = ROOT) -> int:
+    problems = find_problems(root)
     for msg in problems:
         print(msg)
     print("English-only check " + ("FAILED" if problems else "passed"))
