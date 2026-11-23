@@ -17,7 +17,11 @@ def test_historical_snapshots_are_complete_and_accounted_for(root: Path):
             assert hashlib.sha256((base / rec["path"]).read_bytes()).hexdigest() == rec["archived_sha256"]
             if rec["transformation"] == "byte-identical":
                 assert rec["archived_sha256"] == rec["source_sha256"]
-        extras = {p.relative_to(base).as_posix() for p in base.rglob("*") if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"}
+        extras = {
+            p.relative_to(base).as_posix()
+            for p in base.rglob("*")
+            if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
+        }
         expected = {rec["path"] for rec in entry["files"]} | {"ARCHIVE_STATUS.md"}
         assert extras == expected
 
