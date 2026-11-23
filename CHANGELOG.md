@@ -2,6 +2,16 @@
 
 ## 0.1.0 (unreleased)
 
+### Research B1a: Gaussian-polynomial Fourier foundations
+
+* New module `cgdl_fourier` and tests `test_cgdl_fourier.py` (two independent transform routes, exact
+  normalisation, exact sign radii, labelled sign diagnostics, Z by two routes). No registry or status change.
+* New core dependency `mpmath` (pure Python) for high-precision checks.
+* Review of PR #1: incomplete gamma now via `mpmath.gammainc` (the finite-sum identity cancelled
+  catastrophically, e.g. 0 instead of 1.03e37 for k = 80, z = pi); moments checked to order 80. The pi
+  enclosure is verified in exact rationals by Machin's formula. Clarified that only a single common
+  scaling is redundant for Z, not relative widths of several Gaussians.
+
 ### Fixes from the independent review of the changed files (2026-11-23)
 
 * F2: exact coverage check in `Partition.build` (no 1e-12 tolerance); finite positive support required.
