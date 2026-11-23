@@ -300,3 +300,18 @@ def test_pair_correlation_g_is_not_f():
             assert abs(ghat - f.f(r * xi)) < mpmath.mpf("1e-30")
         assert g(0) > 0 and f.f(r * mpmath.mpf("1.4")) < 0
         assert g(0) != f.f(0)          # g(0) = fhat(0)/r = 1/a, not f(0) = 1
+
+
+# --------------------------------------------------------------------------- continuous minimum
+
+def test_even_poly_minimum_analytic_cases():
+    """numerical-high-precision: (u^2 - 1)^2 + eps has minimum eps at u = 1; Gaussian example at u = 0."""
+    eps = Fraction(1, 10 ** 9)
+    mn = cf.even_poly_minimum(cf.even_poly([1 + eps, -2, 1]))
+    gauss = cf.normalize(cf.even_poly([1, -1])).fourier_poly()
+    mg = cf.even_poly_minimum(gauss)
+    with mpmath.workdps(40):
+        assert abs(mn["min_value"] - mpmath.mpf(1) / 10 ** 9) < mpmath.mpf("1e-35")
+        assert abs(mn["argmin_u"] - 1) < mpmath.mpf("1e-30")
+        assert mg["argmin_u"] == 0 and abs(mg["min_value"] - (1 - 1 / (2 * mpmath.pi))) < mpmath.mpf("1e-35")
+    assert cf.even_poly_minimum(cf.even_poly([1, 0, -1]))["unbounded_below"] is True

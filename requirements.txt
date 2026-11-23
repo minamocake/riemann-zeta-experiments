@@ -3,7 +3,7 @@
 numpy>=1.24
 scipy>=1.11
 pyyaml>=6
-mpmath>=1.3   # high-precision checks in cgdl_fourier (pure Python, no dependencies)
+mpmath>=1.4   # high-precision checks in cgdl_fourier (pure Python, no dependencies)
 # Tests
 pytest>=7.4
 # Optional: SDP experiments and tests (skipped when missing)

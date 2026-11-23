@@ -771,3 +771,37 @@ def diagnose(f: GaussianPolynomial, dps: int = 40) -> list[Check]:
         out.append(Check("Z: closed form = quadrature", "objective", bool(agree), "numerical-high-precision",
                          f"closed form {mpmath.nstr(zc, 20)}, quadrature {mpmath.nstr(zq, 20)}"))
     return out
+
+
+# =========================================================================== continuous minimum (stationary points)
+
+def even_poly_minimum(p: EvenPoly, dps: int = 40) -> dict:
+    """Minimum of p(u) over u >= 0 from its stationary points, not from a grid.
+
+    With P(s) = p(sqrt(s)), every interior stationary point u > 0 of p solves P'(s) = 0, s > 0;
+    the candidates are u = 0 and the positive real roots of P'. Roots come from mpmath.polyroots
+    at `dps` digits. Returns the minimum value, its location, all candidates, and whether p tends
+    to -infinity (negative leading coefficient). Rigor: numerical-high-precision. A tiny positive
+    minimum is NOT a positivity certificate, and a value near zero is NOT a proof of a double zero.
+    """
+    if not p:
+        raise ValueError("zero polynomial")
+    with mpmath.workdps(dps + 20):
+        c = [x.to_mp() for x in p]
+        if len(c) > 1 and c[-1] < 0:
+            return {"unbounded_below": True, "min_value": None, "argmin_u": None, "candidates": [],
+                    "rigor": "numerical-high-precision"}
+        candidates = [mpmath.mpf(0)]
+        deriv = [k * c[k] for k in range(1, len(c))]          # P'(s), low degree first
+        while deriv and deriv[-1] == 0:
+            deriv.pop()
+        if len(deriv) >= 2:
+            roots = mpmath.polyroots(deriv, maxsteps=500, extraprec=4 * dps, asc=True)
+            for s in roots:
+                if abs(mpmath.im(s)) <= mpmath.mpf(10) ** (-dps) * (1 + abs(s)) and mpmath.re(s) > 0:
+                    candidates.append(mpmath.sqrt(mpmath.re(s)))
+        values = [(poly_eval_mp(p, u), u) for u in candidates]
+        vmin, umin = min(values, key=lambda t: t[0])
+    with mpmath.workdps(dps):
+        return {"unbounded_below": False, "min_value": +vmin, "argmin_u": +umin,
+                "candidates": [(+u, +v) for v, u in values], "rigor": "numerical-high-precision"}
