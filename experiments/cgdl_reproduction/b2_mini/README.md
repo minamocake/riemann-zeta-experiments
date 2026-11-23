@@ -47,9 +47,14 @@ q(t) = (rho^2 - t) s_2(t), (Tq)(t) = s_3(t) + t s_4(t), deg q <= deg_q_max = 2m 
 
 ## Notes for C0 (not implemented here)
 
-* Sensitivity parameter: rho = R / (Gaussian width), using formulation B. CGdL search rho >= 1, so
-  at rho = 1 only one-sided sensitivities are meaningful. V(rho) may be non-differentiable where the
-  active set changes (near-zero eigenvalues of X_3, X_4 above; the contact point u ~ 1.067 may move).
+* Sensitivity parameter: the dimensionless rho (sign radius of the undilated q(y^2) e^(-pi y^2) in
+  units of its Gaussian width), using formulation B. It is not the normalised physical sign radius
+  R = rho q(0) / (Tq)(0), which is rho q(0) in B: R = 1.006836 for B at m = 1 and R = a0 = 1.189280 at
+  m = 0. So rho = 1 is not the boundary R = 1 of CGdL's search, and B is defined for every rho > 0.
+  V(rho) may be non-differentiable where the active set changes; compare left and right differences.
+* The derivative of a moving Fourier contact point u*(rho) must include the derivative of the
+  optimising function itself: from d/du (Tq_rho)(u*) = 0, du*/drho involves dq_rho/drho, not only the
+  explicit rho-dependence of the model.
 * The dual multiplier of A's extra constraint is a local sensitivity of V_A. It does not by itself
   explain the finite gap V_A - V_B = 0.1239: relaxing the constraint that far can change the active
   set (eigenvalues of X_i reaching zero, the Fourier contact point appearing near u = 1.067).

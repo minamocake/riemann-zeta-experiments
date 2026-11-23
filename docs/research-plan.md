@@ -27,8 +27,9 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
   numerically at deg_q_max = 3: with both hard normalisations at fixed width (A) the optimum stays at
   1.45255, with one normalisation and Z_inv (B) it is 1.32865 (candidate, not certified). B2-full should use
   formulation B. Question (a) is sidestepped by m / deg_q_max = 2m + 1, not resolved for the paper's notation.
-* New open questions: certifying near-active Fourier constraints (B4); one-sided sensitivity in
-  rho = R / width at rho = 1 (C0).
+* New open questions: certifying near-active Fourier constraints (B4); sensitivity of V in the
+  dimensionless rho (C0). rho is not the normalised physical radius R = rho q(0) / (Tq)(0) (B, m = 1:
+  R = 1.006836), so rho = 1 is not CGdL's boundary R = 1.
 * Findings to explain in Phase C (dual and adjoint sensitivity), recorded from B2-mini:
   - Why A's extra constraint q(0) / (Tq)(0) = a0 blocks all improvement at deg_q_max = 3 (V_A stays at
     1.45255 while V_B = 1.32865). Goal: an algebraic explanation via the active constraints and the dual
@@ -44,9 +45,11 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
 ## Priorities after B2-mini (agreed 2026-11-23)
 
 1. B2-full: CGdL reproduction with formulation B (one normalisation, dilation-invariant Z).
-2. C0, focused on: the sensitivity of V(rho) in the dimensionless rho = R / width (one-sided at rho = 1);
+2. C0, focused on: the sensitivity of V(rho) in the dimensionless rho (distinct from the normalised
+   physical radius R = rho q(0) / (Tq)(0); left and right differences, no differentiability assumed);
    active Fourier constraints and near-double-zero behaviour; the local dual price of normalisation
-   constraints; feasible perturbation directions and active-set changes.
+   constraints; feasible perturbation directions and active-set changes. The derivative of a moving
+   Fourier contact point must include the derivative of the optimising function itself.
 3. B4: rigorous feasibility and sign certification (interval arithmetic, strictly feasible perturbation).
 4. Lean formalisation: deprioritised until after B4. If pursued, start with small, independently
    checkable lemmas (e.g. the Gaussian-polynomial transform formula, the dilation invariance of Z_inv).

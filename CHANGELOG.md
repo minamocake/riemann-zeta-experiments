@@ -11,6 +11,8 @@
   primal-dual gap diagnostics. Raw outputs regenerated with identical numerics plus the new fields.
   Research plan: priorities, literature (Alpöge-Furman, Lamzouri, Das-Ismoilov-Ramos) and the Lean
   verification of RH recorded without any status change. mpmath >= 1.4 (`polyroots(asc=True)`).
+* Documentation: rho (dimensionless) is distinguished from the normalised physical sign radius
+  R = rho q(0) / (Tq)(0); the claim that C0 needs one-sided derivatives at rho = 1 is withdrawn.
 
 ### Research B1a: Gaussian-polynomial Fourier foundations
 

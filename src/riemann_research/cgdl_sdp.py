@@ -37,10 +37,16 @@ can involve changes of the active set (zero eigenvalues of X_i, contact points) 
 In formulation B, q(0) = rho^2 X_2[0, 0] >= 0 follows from PSD, but normalisation needs
 q(0) > 0 strictly; this is checked explicitly (`q0_positive`).
 
-The meaningful sensitivity parameter is rho = R / (Gaussian width): Z_inv is invariant under a
-single common dilation, which moves R and the width together. CGdL search R >= 1 (rho >= 1), so
-rho = 1 is a boundary point and only one-sided sensitivities are meaningful there; V(rho) may
-be non-differentiable where the active set (zero eigenvalues of X_i) changes.
+The dimensionless shape parameter is rho: the sign radius of the undilated function
+q(y^2) exp(-pi y^2), in units of its Gaussian width. Z_inv is invariant under a single common
+dilation, so rho, not the physical radius, is what the family can vary. The normalised physical
+sign radius is R = rho q(0) / (Tq)(0): R = rho q(0) in formulation B ((Tq)(0) = 1) and R = a0 in
+formulation A. For the B, m = 1 candidate at rho = 1, R is about 1.006836 (A and B at m = 0:
+R = a0, about 1.189280). So rho = 1 is not the boundary R = 1 of CGdL's outer search over R >= 1
+(CGdL fix the Gaussian width and both normalisations; only there do rho and R coincide), and
+formulation B is defined for every rho > 0. V(rho) may still be non-differentiable where the
+active set changes (zero eigenvalues of X_i, a moving Fourier contact point), so sensitivities
+must be compared with left and right finite differences rather than assumed to exist.
 
 Linearity remark (recorded for C0): f_lam = (1 - x^2)(1 + lam x^2) e^(-pi x^2) satisfies
 f_lam + f_(-lam) = 2 f_0, and the same identity after Fourier transformation. This is linearity
