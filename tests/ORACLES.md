@@ -20,6 +20,7 @@ one is practical.
 | `test_historical_failures.py` | Specification (each stored input must be rejected) and exact evaluation by both verifiers. |
 | `test_english_only.py` | Unicode script ranges. |
 | `test_cgdl_fourier.py` | Two implementations of the Gaussian-polynomial transform (Laguerre closed form of CGdL Section 4.1 versus the differentiation identity FT[x^2 h] = -(hhat)''/(4 pi^2)), compared exactly in Q[pi, 1/pi]. Fourier inversion T(T p) = p (exact). Hand-derived closed forms. Direct Fourier quadrature at 40 digits. Fejér kernel and Z(H) = 4/3 (Montgomery 1973). Z by incomplete-gamma moments versus quadrature in the dilated variable. Exact square-free decomposition and Sturm sequences for sign radii. Gaussian moments k = 0..80 (`mpmath.gammainc`) versus quadrature, relative error, including values near 1e-238; a positive-term series for gamma(81, pi). Rigorous pi enclosure from Machin's formula in exact rationals. Mutation checks during development: corrupting one Laguerre coefficient makes two tests fail; restoring the finite-sum incomplete gamma makes five tests fail. |
+| `test_cgdl_sdp.py` | Analytic m = 0 point (q = 1 - t, X3 = 1 - 1/(2 pi), X4 = 1) and the B1a Gaussian Z. A numpy re-implementation of the linear maps (`evaluate_point`) versus the CVXPY model. Embedding of the m = 0 point into m = 1. The map q_B = a0 q_A (objective and constraints preserved). V_B <= V_A (theorem: A is B plus one constraint). Z re-evaluated by both B1a routes using the actual sign radius of the returned q. Dual homogeneity identity -(sum of normalisation duals) = V. A constructed infeasible instance. |
 
 ## Characterization values (recorded from runs) and their independent pairing
 
@@ -31,6 +32,7 @@ one is practical.
 | `legacy_run_outputs/` comparisons (`test_legacy_preservation.py`) | archived legacy outputs | none needed: these tests assert unchanged legacy behaviour by design |
 | `tests/data/historical_failures.json` | legacy code (deterministic generator) | the tests check rejection by the core and both exact verifiers |
 | Z = 1.4525472652249223, (T p)(2) = -3.2077135983, fhat(2) = -1.11863955e-5 (`test_cgdl_fourier.py`) | separate scipy and mpmath computations made while writing the B1a specification | closed form versus quadrature inside the same tests; exact symbolic transforms |
+| V_A(m=1) = 1.4525472652591453, V_B(m=1) = 1.328646166101496 (`test_cgdl_sdp.py`) | Clarabel run of B2-mini | independent Z by closed form and quadrature; numpy re-evaluation; V_B <= V_A and V_A(m=1) <= Z of the embedded m = 0 point |
 
 Optimality claims ("global in family") rest on convexity checks or SDP rank-one tightness and are
 numerical; they do not affect the validity of any bound.
