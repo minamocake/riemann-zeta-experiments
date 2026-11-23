@@ -1,0 +1,578 @@
+# Result registry. One entry per recorded number or finding.
+#
+# Three independent dimensions are recorded for every result:
+#   computation:          exploratory | reproduced | numerically-certified
+#   mathematical_status:  conjectural | proof-pending | independently-reviewed | proven
+#   assumptions:          ids from results/assumptions.yaml (their status lives there)
+# mathematical_status is set BY HAND and is never derived or upgraded by tools. The checker only
+# rejects statuses that overstate the evidence: 'independently-reviewed' and 'proven' require a
+# recorded human review (AI audits and passing tests do not count); 'proven' also needs
+# 'accepted: true'. See docs/status-policy.md.
+#
+# Migration from the two-axis v0.1 draft (values unchanged): exact-certificate -> numerically-certified,
+# numerical-reproduced -> reproduced, numerical-single -> exploratory; argument_status -> mathematical_status.
+# The 2026-11-23 audit was performed by an AI system and is recorded as evidence, not as a review.
+#
+# quantity P: lower bound for liminf N_s(T)/N(T) (proportion of simple zeros), from N* <= (2 - P) N.
+
+schema: riemann-research/registry/v1
+literature:
+  montgomery-taylor:
+    value: 0.6725
+    description: 'Optimal constant for Fourier support in [-1,1]: N* <= 1.3275 N (Montgomery-Taylor; Cheer-Goldston).'
+  chirre-goncalves-de-laat-2020:
+    value: 0.6792
+    description: >-
+      Pair-correlation benchmark: N* < 1.3208 N under RH via semidefinite programming with the sign
+      condition f^ <= 0 for |x| >= 1. Best published value we know of from Montgomery's pair-correlation
+      method; not the best known proportion of simple zeros under RH by all methods.
+    reference: A. Chirre, F. Goncalves, D. de Laat, Adv. Math. 361 (2020) 106926; arXiv:1810.08843.
+results:
+- id: pc-baseline-A1
+  kind: result
+  title: Nonnegative boxes of widths k/12, Fourier support in [-1,1]
+  value: 0.6724490972
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  certificate: certificates/pc-baseline-A1.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/baselines/run_baseline.py
+  origin: legacy run_experiment.py (A=1.0 baseline), independently re-derived
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+  note: Below the Montgomery-Taylor optimum, as it must be for a restricted family. Not a new result.
+- id: pc-legacy-signonly-A1.1
+  kind: result
+  title: Legacy sign-only candidate, A=1.1 (rank one)
+  value: 0.6724406356
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  certificate: certificates/pc-legacy-signonly-A1.1.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/signed_kernels/certify_sign_only.py
+  origin: legacy run_signed_experiment.py (SIGN-ONLY)
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+  note: Weights on widths > 1 set to exactly 0 before certification (they were ~1e-17).
+- id: pc-legacy-signonly-A1.5
+  kind: result
+  title: Legacy sign-only candidate, A=1.5 (rank one)
+  value: 0.6723649809
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: local
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  certificate: certificates/pc-legacy-signonly-A1.5.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/signed_kernels/certify_sign_only.py
+  origin: legacy run_signed_experiment.py (SIGN-ONLY)
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+  note: >
+    The legacy float solution had R ~ +1e-16 at some knots (not exactly admissible); weights on widths > 1 (~1e-12)
+    were set to 0. An SDP over the 8 boxes of width <= 1 gives 0.67238.
+- id: pc-legacy-signonly-A2.0
+  kind: result
+  title: Legacy sign-only candidate, A=2.0 (rank one)
+  value: 0.6707507066
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: local
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  certificate: certificates/pc-legacy-signonly-A2.0.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/signed_kernels/certify_sign_only.py
+  origin: legacy run_signed_experiment.py (SIGN-ONLY)
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+  note: >-
+    Only the 6 boxes of width <= 1 can carry weight (see neg-signonly-degeneracy). SDP over them: 0.67230.
+- id: pc-provencap-A1.5
+  kind: result
+  title: PSD mixture of 12 boxes (A=1.5), outside mass paid with the derived cap 8/3 on [1,1.5]
+  value: 0.6747025741
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - lemma-intF-8-3
+  certificate: certificates/pc-provencap-A1.5.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  - docs/derivations/int-F-cap.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/proven_cap/run_proven_cap.py
+  origin: audit 2026-11-23
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+- id: pc-provencap-A2
+  kind: result
+  title: PSD mixture of 12 boxes (A=2), outside mass paid with the derived cap 8/3 on [1,2]
+  value: 0.677634962
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - lemma-intF-8-3
+  certificate: certificates/pc-provencap-A2.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  - docs/derivations/int-F-cap.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/proven_cap/run_proven_cap.py
+  origin: audit 2026-11-23
+  compare_to:
+  - montgomery-taylor
+  - chirre-goncalves-de-laat-2020
+  note: Exceeds the Montgomery-Taylor constant but not the pair-correlation benchmark of Chirre-Goncalves-de Laat
+    (0.6792). Not a new result.
+- id: pc-legacy-caps-A2-scale4
+  kind: result
+  title: Signed boxes, A=2, caps U_i = 4 x width on 10 bins of [1,2]
+  value: 0.7123931138
+  computation: numerically-certified
+  mathematical_status: proof-pending
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-4
+  certificate: certificates/pc-legacy-caps-A2-scale4.json
+  argument:
+  - docs/derivations/what-a-certificate-establishes.md
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/signed_kernels/certify_sign_only.py
+  origin: legacy run_signed_experiment.py
+  note: >-
+    Exact arithmetic does not remove the unproven cap hypothesis. Must not be presented as a proven proportion.
+- id: pc-legacy-caps-A1.1-scale1
+  kind: result
+  title: Signed boxes, A=1.1, caps 1 x width
+  value: 0.72636305
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.1-scale2
+  kind: result
+  title: Signed boxes, A=1.1, caps 2 x width
+  value: 0.71615702
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-2
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.1-scale4
+  kind: result
+  title: Signed boxes, A=1.1, caps 4 x width
+  value: 0.69956055
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-4
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.1-scale8
+  kind: result
+  title: Signed boxes, A=1.1, caps 8 x width
+  value: 0.67697978
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-8
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.5-scale1
+  kind: result
+  title: Signed boxes, A=1.5, caps 1 x width
+  value: 0.8470448
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.5-scale2
+  kind: result
+  title: Signed boxes, A=1.5, caps 2 x width
+  value: 0.77241378
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-2
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.5-scale4
+  kind: result
+  title: Signed boxes, A=1.5, caps 4 x width
+  value: 0.70935274
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-4
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A1.5-scale8
+  kind: result
+  title: Signed boxes, A=1.5, caps 8 x width
+  value: 0.67941026
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-8
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A2.0-scale1
+  kind: result
+  title: Signed boxes, A=2, caps 1 x width
+  value: 0.9077407
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A2.0-scale2
+  kind: result
+  title: Signed boxes, A=2, caps 2 x width
+  value: 0.77436457
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-2
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+- id: pc-legacy-caps-A2.0-scale8
+  kind: result
+  title: Signed boxes, A=2, caps 8 x width (legacy rank one)
+  value: 0.68052404
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: local
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-8
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_signed_experiment.py
+  note: Rank-one optimum over 40 seeds; a rank-2 PSD mixture does better (pc-psd-caps-A2-scale8).
+- id: pc-psd-caps-A2-scale8
+  kind: result
+  title: PSD mixture of boxes, A=2, caps 8 x width
+  value: 0.68084521
+  computation: exploratory
+  mathematical_status: conjectural
+  optimality: global-in-family-sdp
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-8
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: audit 2026-11-23
+- id: pc-legacy-positive-A1.1-stage0
+  kind: result
+  title: Nonnegative boxes, A=1.1, caps 1 x width, 10 bins
+  value: 0.726363
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_experiment.py
+- id: pc-legacy-positive-A1.5-stage0
+  kind: result
+  title: Nonnegative boxes, A=1.5, caps 1 x width, 10 bins
+  value: 0.847045
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_experiment.py
+- id: pc-legacy-positive-A2.0-stage0
+  kind: result
+  title: Nonnegative boxes, A=2, caps 1 x width, 10 bins
+  value: 0.907741
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_experiment.py
+- id: pc-legacy-positive-A2.0-stage2
+  kind: result
+  title: Nonnegative boxes, A=2, refined to 16 bins (stronger hypothesis)
+  value: 0.91443
+  computation: reproduced
+  mathematical_status: conjectural
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - caps-scale-1
+  open_issues: []
+  reviews: []
+  reproduce: experiments/pair_correlation/sensitivity/reproduce_caps.py
+  origin: legacy run_experiment.py
+  note: >-
+    The refined partition is a stronger hypothesis than the 10-bin one; see neg-refinement-strengthens-hypothesis.
+- id: pc-positive-A2-refinement-limit
+  kind: result
+  title: Nonnegative boxes, A=2, limit of infinitely fine bins
+  value: 0.932123
+  computation: exploratory
+  mathematical_status: conjectural
+  optimality: global-in-family-convex
+  assumptions:
+  - RH
+  - montgomery-theorem
+  - F-nonnegative
+  - simple-zero-inequality
+  - pointwise-F-le-1
+  open_issues: []
+  reviews: []
+  reproduce: audits/2026-11-23-pair-correlation-audit/scripts/check4_edge_cases.py
+  origin: audit 2026-11-23
+- id: neg-signonly-degeneracy
+  kind: negative-result
+  title: Sign-only mode cannot exceed the classical support-in-[-1,1] problem in the box family
+  computation: reproduced
+  mathematical_status: proof-pending
+  argument:
+  - docs/derivations/sign-only-degeneracy.md
+  open_issues: []
+  reviews: []
+  evidence:
+  - certificates/pc-legacy-signonly-A1.5.json
+  - certificates/pc-legacy-signonly-A2.0.json
+  tests:
+  - tests/test_signonly_degeneracy.py
+  summary: >
+    R <= 0 on [1, A] forces zero weight on every box wider than 1, so the signed extension with larger A reduces
+    to the classical problem and is bounded by Montgomery-Taylor (0.6725). The decrease of the legacy sign-only
+    P with A is an artifact of fewer boxes of width <= 1.
+- id: neg-refinement-strengthens-hypothesis
+  kind: negative-result
+  title: Adaptive bin refinement with caps proportional to width strengthens the hypothesis
+  computation: reproduced
+  mathematical_status: proof-pending
+  argument:
+  - docs/derivations/refinement.md
+  open_issues: []
+  reviews: []
+  evidence:
+  - pc-legacy-positive-A2.0-stage0
+  - pc-legacy-positive-A2.0-stage2
+  - pc-positive-A2-refinement-limit
+  summary: The P increase across refinement stages reflects a stronger assumption, not a better method.
+- id: neg-rank-one-not-global
+  kind: negative-result
+  title: Rank-one signed optimum is not the best PSD mixture at A=2, scale 8
+  computation: reproduced
+  mathematical_status: conjectural
+  open_issues: []
+  reviews: []
+  evidence:
+  - pc-legacy-caps-A2.0-scale8
+  - pc-psd-caps-A2-scale8
+  summary: Restricting to f = |H|^2 with a single H loses 0.03 percentage points there.
+- id: neg-no-improvement-over-literature
+  kind: negative-result
+  title: No RH-only value in this repository exceeds the pair-correlation benchmark
+  computation: reproduced
+  mathematical_status: conjectural
+  open_issues: []
+  reviews: []
+  evidence:
+  - pc-baseline-A1
+  - pc-legacy-signonly-A2.0
+  - pc-provencap-A2
+  summary: >-
+    Best RH-only value here is 0.67763 (with an unreviewed lemma), below the pair-correlation benchmark 0.6792
+    (Chirre-Goncalves-de Laat 2020).
+- id: defect-partition-not-covering-support
+  kind: known-defect
+  title: Legacy code ignores the outside window beyond the last edge (e.g. A > 2 with default edges)
+  evidence: 'A=2.5, nonnegative boxes: legacy P=0.970667 vs 0.935599 with bins covering [1,2.5].'
+  tests:
+  - tests/test_partition_validation.py
+  - tests/test_legacy_known_defects.py
+  affected:
+  - legacy/pair_correlation_sensitivity_v0/src/pair_sensitivity.py
+  - legacy/pair_correlation_sensitivity_v0/src/signed_sensitivity.py
+  fixed_in: src/riemann_research/montgomery.py (Partition.build)
+- id: defect-partition-not-starting-at-one
+  kind: known-defect
+  title: Legacy code accepts partitions starting above 1 and ignores [1, e_0)
+  evidence: 'A=1.5 with edges from 1.5: legacy P=0.962963 vs 0.847045.'
+  tests:
+  - tests/test_partition_validation.py
+  - tests/test_legacy_known_defects.py
+  affected:
+  - legacy/pair_correlation_sensitivity_v0/src/pair_sensitivity.py
+  - legacy/pair_correlation_sensitivity_v0/src/signed_sensitivity.py
+  fixed_in: src/riemann_research/montgomery.py (Partition.build)
+- id: defect-tolerance-based-validity
+  kind: known-defect
+  title: Legacy sign-only validity uses a 2e-7 float tolerance, not an exact check
+  evidence: A candidate with violation 1.9e-7 and O(0.1) weights on widths > 1 was accepted (P=0.673185).
+  tests:
+  - tests/test_certificates.py
+  - tests/test_legacy_known_defects.py
+  affected:
+  - legacy/pair_correlation_sensitivity_v0/src/signed_sensitivity.py
+  fixed_in: src/riemann_research/certify.py (exact rational verification)

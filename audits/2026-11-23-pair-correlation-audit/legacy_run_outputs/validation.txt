@@ -1,0 +1,3 @@
+Analytical dC/dU_0 = 0.353184834826
+Central finite diff = 0.353184837126
+Absolute error = 2.301e-09

@@ -1,0 +1,12 @@
+# Loose ranges for development. For exact reproduction use requirements-lock.txt.
+# Core
+numpy>=1.24
+scipy>=1.11
+pyyaml>=6
+# Tests
+pytest>=7.4
+# Optional: SDP experiments and tests (skipped when missing)
+cvxpy>=1.4
+clarabel>=0.6
+# Optional: legacy plotting scripts
+matplotlib>=3.7

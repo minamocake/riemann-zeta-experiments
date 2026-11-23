@@ -1,0 +1,20 @@
+audited A=1.0 baseline (rank 1, q>=0): admissible(exact)=True  max R at 1 knots = 0.000e+00 (at a=1.000000)   P = 2 - C = 0.6724490972
+audited sign-only A=1.1 (rank 1): admissible(exact)=True  max R at 4 knots = 0.000e+00 (at a=1.000000)   P = 2 - C = 0.6724406356
+audited sign-only A=1.5 (rank 1): admissible(exact)=False  max R at 9 knots = 2.268e-25 (at a=1.375000)   P = 2 - C = 0.6723649810
+audited sign-only A=2.0 (rank 1): admissible(exact)=False  max R at 31 knots = 5.711e-26 (at a=1.416667)   P = 2 - C = 0.6707507066
+
+SDP-based candidates on exact rational widths k*A/12 (my construction, not from the audited code):
+Traceback (most recent call last):
+  File "/home/claude/deliver/riemann-research/audits/2026-11-23-pair-correlation-audit/scripts/check3_exact.py", line 82, in <module>
+    cp.Problem(cp.Minimize(cp.trace(B @ X)), cons).solve(solver='CLARABEL')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/cvxpy/problems/problem.py", line 687, in solve
+    return solve_func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.13/site-packages/cvxpy/problems/problem.py", line 1148, in _solve
+    self.unpack_results(solution, solving_chain, inverse_data)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/site-packages/cvxpy/problems/problem.py", line 1453, in unpack_results
+    raise error.SolverError(
+    ...<2 lines>...
+            "information.")
+cvxpy.error.SolverError: Solver 'CLARABEL' failed. Try another solver, or solve with verbose=True for more information.

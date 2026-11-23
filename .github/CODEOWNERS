@@ -1,0 +1,9 @@
+# Solo maintainer: code-owner review is not a required check (an author cannot approve their own PR);
+# the maintainer's manual merge is the human approval (see docs/repository-settings.md).
+# Status changes in results/ need a human decision by design.
+*                      @minamocake
+/results/              @minamocake
+/certificates/         @minamocake
+/docs/derivations/     @minamocake
+/legacy/               @minamocake
+/.github/              @minamocake

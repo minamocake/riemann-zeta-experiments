@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "riemann-research"
+version = "0.1.0"
+description = "Computational research on Riemann zeta zeros, pair correlation, Fourier optimization, and adjoint methods."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.13,<3.14"  # only 3.13 is tested; widen after CI covers more versions
+dependencies = ["numpy>=1.24", "scipy>=1.11", "pyyaml>=6"]
+
+[project.optional-dependencies]
+sdp = ["cvxpy>=1.4", "clarabel>=0.6"]
+test = ["pytest>=7.4", "ruff>=0.16"]
+plots = ["matplotlib>=3.7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+# Frozen historical evidence is not linted (it must stay byte-identical).
+extend-exclude = ["legacy", "audits"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]

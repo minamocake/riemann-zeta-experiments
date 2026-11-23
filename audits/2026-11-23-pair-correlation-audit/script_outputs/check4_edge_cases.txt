@@ -1,0 +1,33 @@
+=== (A) A > 2 with default edges [1,2]: out-of-window mass on (2,A] silently dropped ===
+positive, A=2.5: code C=1.029333 (P=0.970667) ; same hypothesis with bins covering [1,2.5]: C=1.064401 (P=0.935599)
+   R(2.0) for code optimum = 8.0000e-02 > 0  -> contribution of (2,2.5] ignored, no error raised
+sign-only ("theorem-safe") A=2.5: code returns valid=True, P=0.674637, reported violation=2.8e-13
+   but max R on (2,2.5] = 1.5432e-04 at a=2.083; the R<=0 requirement is unchecked there
+   with F==1 there (Montgomery conjecture) the omitted term 2*int_2^2.5 R = +3.0778e-05
+
+=== (B) edges not starting at 1 are accepted: [1,1.5) silently dropped ===
+A=1.5 edges from 1.5: C=1.037037 (P=0.962963)  vs edges from 1.0: C=1.152955 (P=0.847045)
+   (with edges from 1.5 the out-of-window term is identically 0: it is just the window functional)
+
+=== (C) tolerance-based "validity" in sign_only: violations up to 2e-7 accepted ===
+rank-1 q accepted by the code's own validity test (violation 1.90e-07 < 2e-7): P = 0.673185
+   vs exactly-admissible optimum in this family (widths<=1 only): 0.670751 (rank 1) / 0.672295 (PSD mix)
+   weights on widths>1: [ 9.472e-02 -4.475e-02 -2.325e-03 -9.340e-04 -6.553e-06 -5.067e-05]  -> large, not rounding noise
+   rigorous repair: pay R+ with the proven cap int_1^2 F <= 8/3 : P_rig >= 0.673184
+
+=== (D) proven-cap variant the code omits: single bin [1,2], U = 8/3 (RH only, no hypothesis) ===
+A=1.5: SDP P=0.67470258 rank~2;  exact certificate: P_window=0.6757095421, max R+ on [1,1.5]=1.888e-04, P_cert=0.6747025787
+A=2.0: SDP P=0.67763496 rank~3;  exact certificate: P_window=0.6783036766, max R+ on [1,2.0]=1.254e-04, P_cert=0.6776349629
+   reference: Montgomery-Taylor/Cheer-Goldston 0.6725 ; Chirre-Goncalves-de Laat (2020) 0.6792
+
+=== (E) rank-one vs PSD at A=2, scale=8 (caps): is the audited local optimum global? ===
+best rank-1 P over 40 seeds x 14 starts (audited optimizer) = 0.68052404 ; SDP (rank>1) P = 0.68084521; top eigenvalues [0.2246 0.013  0.    ]
+
+=== (F) sensitivity = 2 max(0, sup_B R) vs re-optimised finite differences (global SDP), A=2 scale=4 ===
+formula : [0.12212 0.04336 0.      0.      0.      0.      0.      0.00063 0.00063
+ 0.00035]
+FD (SDP): [ 1.22121e-01  4.33603e-02  1.64679e-08 -1.00908e-08 -1.85330e-08
+ -1.38634e-08 -3.23563e-08  6.34306e-04  6.34308e-04  3.49849e-04]   max abs diff 2.8e-07
+
+=== (G) refinement strengthens the hypothesis: limit = "F <= scale a.e. on [1,2]" ===
+positive family A=2, scale 1: stages 0/1/2 P = 0.907741 / 0.913049 / 0.914430 ; infinitely fine bins limit P = 0.932123

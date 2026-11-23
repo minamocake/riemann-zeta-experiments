@@ -1,0 +1,76 @@
+{
+ "schema": "riemann-research/box-certificate/v1",
+ "id": "pc-legacy-signonly-A2.0",
+ "family": "centered-boxes",
+ "widths": [
+  "6004799503160661/36028797018963968",
+  "6004799503160661/18014398509481984",
+  "1/2",
+  "6004799503160661/9007199254740992",
+  "3752999689475413/4503599627370496",
+  "9007199254740991/9007199254740992",
+  "5254199565265579/4503599627370496",
+  "6004799503160661/4503599627370496",
+  "3/2",
+  "7505999378950827/4503599627370496",
+  "8256599316845909/4503599627370496",
+  "2"
+ ],
+ "components": [
+  {
+   "weight": "719007578559/807848528026",
+   "vector": [
+    "2746231034/659459779537",
+    "-27664656414/959216041813",
+    "-22411755563/674179612987",
+    "-16307567556/922373865193",
+    "14157534225/984489342421",
+    "-903714474482/904834275703",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0",
+    "0"
+   ]
+  }
+ ],
+ "outside": {
+  "mode": "sign-only"
+ },
+ "claimed": {
+  "P_lower_bound": "3353753533/5000000000",
+  "P_lower_bound_decimal": 0.6707507066
+ },
+ "notes": "Legacy rank-one candidate; weights on widths > 1 set to exactly 0 (they were ~1e-12). Widths are the legacy binary floats.",
+ "provenance": {
+  "commit": "unavailable (not a git checkout)",
+  "dirty": null,
+  "generator": "experiments/pair_correlation/signed_kernels/certify_sign_only.py",
+  "inputs": {
+   "A": 2.0,
+   "basis_count": 12,
+   "mode": "sign-only",
+   "source": "legacy signed_sensitivity.optimize_signed(restarts=4)"
+  },
+  "seed": 42,
+  "precision": {
+   "denominator": 1000000000000,
+   "claim_digits": 10
+  },
+  "solver": "SLSQP via legacy signed_sensitivity",
+  "solver_version": "1.18.1",
+  "verifiers": {
+   "certify": "riemann-research/box-certificate/v1",
+   "independent_check": "v1",
+   "package": "0.1.0"
+  },
+  "python": "3.13.18",
+  "libraries": {
+   "numpy": "2.5.5",
+   "scipy": "1.18.1",
+   "cvxpy": "1.9.3"
+  },
+  "created_utc": "2026-11-23T07:08:25Z"
+ }
+}

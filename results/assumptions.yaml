@@ -1,0 +1,84 @@
+# Mathematical status of every assumption a recorded result may depend on.
+# Allowed statuses (see src/riemann_research/status.py):
+#   theorem | theorem-under-RH | riemann-hypothesis | derived-unreviewed | unproven-hypothesis | open-conjecture
+# This file records the status of ASSUMPTIONS only. How a number was computed is recorded in registry.yaml.
+# Optional "scope" blocks state the exact conditions under which a cap assumption may be used; the registry
+# checker rejects certificates that use a cap outside that scope.
+
+RH:
+  status: riemann-hypothesis
+  statement: "All nontrivial zeros of zeta(s) lie on Re(s) = 1/2."
+  note: "Open. Every result in this repository assumes it."
+
+montgomery-theorem:
+  status: theorem-under-RH
+  statement: "F(a,T) = (1+o(1)) T^{-2|a|} log T + |a| + o(1), uniformly for |a| <= 1."
+  references:
+    - "H. L. Montgomery, The pair correlation of zeros of the zeta function, Proc. Sympos. Pure Math. 24 (1973)."
+    - "D. A. Goldston and H. L. Montgomery (1987), Lemma 8: uniformity up to |a| = 1."
+
+F-nonnegative:
+  status: theorem
+  statement: >
+    F(a,T) is real, even and pointwise nonnegative. Nonnegativity uses the special weight
+    w(u) = 4/(4+u^2), the Fourier transform of exp(-2|t|) >= 0, which makes F an average of squared
+    absolute values. (F is also the Fourier transform of a nonnegative measure, but that alone would
+    not imply pointwise nonnegativity.)
+  references:
+    - "Noted by Mueller and by Heath-Brown after Montgomery (1973); follows from w(u) = 4/(4+u^2) having a positive Fourier transform."
+
+simple-zero-inequality:
+  status: theorem
+  statement: "N_s(T) >= 2 N(T) - N*(T), since 2 - m <= 1 with equality iff m = 1."
+
+lemma-intF-8-3:
+  status: derived-unreviewed
+  statement: "Assuming RH, int_{b-1/2}^{b+1/2} F(a,T) da <= 8/3 + o(1) for every real b."
+  derivation: docs/derivations/int-F-cap.md
+  scope:            # enforced by tools/check_registry.py on every certificate that cites this lemma
+    max_bin_length: "1"
+    min_cap: "8/3"
+  note: >
+    Elementary consequence of montgomery-theorem and F being the Fourier transform of a
+    nonnegative measure (a positive-definiteness argument; pointwise F >= 0 is used separately). Written during the 2026-11-23 audit; not peer reviewed. Sharper
+    published bounds exist (Carneiro-Chandee-Chirre-Milinovich), but this repository only
+    relies on the derivation it contains.
+
+caps-scale-1:
+  status: unproven-hypothesis
+  scope:
+    cap_per_unit_width: "1"   # certificate caps must not be smaller than 1 x bin width
+    max_edge: "2"             # the hypothesis is stated for bins of [1, 2] only
+  statement: "int_{B} F(a,T) da <= |B| + o(1) for every bin B of the stated partition of [1,2]."
+  note: >
+    Equivalent, in the limit of fine bins, to an averaged form of Montgomery's strong pair
+    correlation conjecture on [1,2]. The best known RH bounds for int_b^{b+l} F tend to 1 (not 0)
+    as l -> 0 (Carneiro-Chandee-Chirre-Milinovich, "A tale of three integrals").
+
+caps-scale-2:
+  status: unproven-hypothesis
+  scope:
+    cap_per_unit_width: "2"   # certificate caps must not be smaller than 2 x bin width
+    max_edge: "2"             # the hypothesis is stated for bins of [1, 2] only
+  statement: "int_{B} F(a,T) da <= 2|B| + o(1) for every bin B of the stated partition of [1,2]."
+  note: "Not known for bins of width 0.1 or less; see caps-scale-1."
+
+caps-scale-4:
+  status: unproven-hypothesis
+  scope:
+    cap_per_unit_width: "4"   # certificate caps must not be smaller than 4 x bin width
+    max_edge: "2"             # the hypothesis is stated for bins of [1, 2] only
+  statement: "int_{B} F(a,T) da <= 4|B| + o(1) for every bin B of the stated partition of [1,2]."
+  note: "Not known for bins of width 0.1 or less; see caps-scale-1."
+
+caps-scale-8:
+  status: unproven-hypothesis
+  scope:
+    cap_per_unit_width: "8"   # certificate caps must not be smaller than 8 x bin width
+    max_edge: "2"             # the hypothesis is stated for bins of [1, 2] only
+  statement: "int_{B} F(a,T) da <= 8|B| + o(1) for every bin B of the stated partition of [1,2]."
+  note: "Requires caps of 0.8 on bins of width 0.1; known bounds for short intervals are at least 1."
+
+pointwise-F-le-1:
+  status: unproven-hypothesis
+  statement: "F(a,T) <= 1 + o(1) in the weak sense on [1,2] (limit of infinitely refined caps-scale-1)."

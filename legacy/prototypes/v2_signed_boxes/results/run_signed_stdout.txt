@@ -1,0 +1,21 @@
+A=1.1 scale=1  P_signed=0.72636305 P_positive=0.72636305 gain_pp=-0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.1 scale=2  P_signed=0.71615702 P_positive=0.71615702 gain_pp=0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.1 scale=4  P_signed=0.69956055 P_positive=0.69956055 gain_pp=-0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.1 scale=8  P_signed=0.67697978 P_positive=0.67697978 gain_pp=0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.5 scale=1  P_signed=0.84704480 P_positive=0.84704480 gain_pp=0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.5 scale=2  P_signed=0.77241378 P_positive=0.77241378 gain_pp=0.00000 signed_R=False nonmonotone=False peak_rebound=0.0000000
+A=1.5 scale=4  P_signed=0.70935274 P_positive=0.70796737 gain_pp=0.13854 signed_R=True nonmonotone=True peak_rebound=0.0005481
+A=1.5 scale=8  P_signed=0.67941026 P_positive=0.67594713 gain_pp=0.34631 signed_R=True nonmonotone=True peak_rebound=0.0003161
+A=2.0 scale=1  P_signed=0.90774070 P_positive=0.90774070 gain_pp=0.00000 signed_R=False nonmonotone=False peak_rebound=-0.0250058
+A=2.0 scale=2  P_signed=0.77436457 P_positive=0.77371361 gain_pp=0.06510 signed_R=True nonmonotone=True peak_rebound=0.0000968
+A=2.0 scale=4  P_signed=0.71239311 P_positive=0.70682172 gain_pp=0.55714 signed_R=True nonmonotone=True peak_rebound=0.0006343
+A=2.0 scale=8  P_signed=0.68052404 P_positive=0.67515323 gain_pp=0.53708 signed_R=True nonmonotone=True peak_rebound=0.0001357
+SIGN-ONLY A= 1.1 P= 0.6724406356261092 max violation= 1.9657570690851138e-35
+SIGN-ONLY A= 1.5 P= 0.6722939648711976 max violation= 9.718590069173581e-19
+SIGN-ONLY A= 2.0 P= 0.6707507066269873 max violation= 1.5337148556216683e-16
+adaptive {"strategy": "global", "stage": 0, "n_bins": 10, "P": 0.7123931138918866, "selected_bands": [[1.0, 1.1], [1.1, 1.2], [1.7000000000000002, 1.8]], "top_sensitivities": [0.12212038617422821, 0.043360101463400406, 0.0006343236355434935], "max_continuum_violation": 3.862979814500678e-14, "objective_spread": 7.432277016050648e-12}
+adaptive {"strategy": "global", "stage": 1, "n_bins": 13, "P": 0.7264758824304653, "selected_bands": [[1.0, 1.05], [1.05, 1.1], [1.1, 1.15]], "top_sensitivities": [0.1307980622562552, 0.0863746836327611, 0.04732440127694679], "max_continuum_violation": 1.0852430065710905e-14, "objective_spread": 1.850830599892106e-11}
+adaptive {"strategy": "global", "stage": 2, "n_bins": 16, "P": 0.7324033462863373, "selected_bands": [[1.0, 1.025], [1.025, 1.05], [1.05, 1.0750000000000002]], "top_sensitivities": [0.13421793488899836, 0.11151503575863114, 0.08881213662826368], "max_continuum_violation": 5.0083906206338513e-14, "objective_spread": 1.4011458659979326e-11}
+adaptive {"strategy": "stratified", "stage": 0, "n_bins": 10, "P": 0.7123931138918866, "selected_bands": [[1.7000000000000002, 1.8], [1.0, 1.1], [1.1, 1.2]], "top_sensitivities": [0.0006343236355434935, 0.12212038617422821, 0.043360101463400406], "max_continuum_violation": 3.862979814500678e-14, "objective_spread": 7.432277016050648e-12}
+adaptive {"strategy": "stratified", "stage": 1, "n_bins": 13, "P": 0.7264758824304653, "selected_bands": [[1.7000000000000002, 1.75], [1.0, 1.05], [1.05, 1.1]], "top_sensitivities": [0.0008051829554415156, 0.1307980622562552, 0.0863746836327611], "max_continuum_violation": 1.0852430065710905e-14, "objective_spread": 1.850830599892106e-11}
+adaptive {"strategy": "stratified", "stage": 2, "n_bins": 16, "P": 0.7309993240872728, "selected_bands": [[1.8, 1.9], [1.0, 1.025], [1.025, 1.05]], "top_sensitivities": [0.000844345350785362, 0.13321837955268695, 0.11065571565291848], "max_continuum_violation": 9.08162434143378e-14, "objective_spread": 5.061506769266089e-12}

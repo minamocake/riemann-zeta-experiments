@@ -1,0 +1,75 @@
+{
+ "schema": "riemann-research/box-certificate/v1",
+ "id": "pc-baseline-A1",
+ "family": "centered-boxes",
+ "widths": [
+  "1/12",
+  "1/6",
+  "1/4",
+  "1/3",
+  "5/12",
+  "1/2",
+  "7/12",
+  "2/3",
+  "3/4",
+  "5/6",
+  "11/12",
+  "1"
+ ],
+ "components": [
+  {
+   "weight": "354628758569/490853503951",
+   "vector": [
+    "101883559/275289218212",
+    "388337456/262776707873",
+    "372650042/112397052907",
+    "3329403899/567159978622",
+    "9000320221/986397607706",
+    "9814899895/751792394411",
+    "2242457706/127157895239",
+    "20023601399/876992192834",
+    "25623245519/895627391226",
+    "34212760112/979588549245",
+    "38920408685/932532247597",
+    "425124030678/426172422539"
+   ]
+  }
+ ],
+ "outside": {
+  "mode": "support-in-window"
+ },
+ "claimed": {
+  "P_lower_bound": "1681122743/2500000000",
+  "P_lower_bound_decimal": 0.6724490972
+ },
+ "notes": "Nonnegative centered boxes of widths k/12; classical support condition.",
+ "provenance": {
+  "commit": "unavailable (not a git checkout)",
+  "dirty": null,
+  "generator": "experiments/pair_correlation/baselines/run_baseline.py",
+  "inputs": {
+   "widths": "k/12, k=1..12",
+   "family": "nonnegative centered boxes",
+   "mode": "support-in-window"
+  },
+  "seed": 0,
+  "precision": {
+   "denominator": 1000000000000,
+   "claim_digits": 10
+  },
+  "solver": "SLSQP via riemann_research.optimize.positive_qp",
+  "solver_version": "1.18.1",
+  "verifiers": {
+   "certify": "riemann-research/box-certificate/v1",
+   "independent_check": "v1",
+   "package": "0.1.0"
+  },
+  "python": "3.13.18",
+  "libraries": {
+   "numpy": "2.5.5",
+   "scipy": "1.18.1",
+   "cvxpy": "1.9.3"
+  },
+  "created_utc": "2026-11-23T07:08:19Z"
+ }
+}

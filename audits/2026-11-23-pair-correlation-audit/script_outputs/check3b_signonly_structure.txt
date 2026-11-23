@@ -1,0 +1,17 @@
+A=1.1: widths>1 -> [1.1]  audited q there = [-1.42e-17]
+   repaired (q=0 on widths>1): admissible(exact)=True  max R at 4 knots = 0.000e+00 (at a=1.000000)   P = 2 - C = 0.6724406356
+   audited P = 0.672440635626;  repaired exact P - audited = +0.00e+00
+   SDP over 11 boxes of width<=1: P = 0.6724406306  (eig2/eig1=1.9e-07)
+A=1.5: widths>1 -> [1.125, 1.25, 1.375, 1.5]  audited q there = [ 2.32e-12  2.17e-12  1.03e-13 -2.02e-12]
+   repaired (q=0 on widths>1): admissible(exact)=True  max R at 9 knots = 0.000e+00 (at a=1.000000)   P = 2 - C = 0.6723649810
+   audited P = 0.672364980973;  repaired exact P - audited = -7.16e-14
+   SDP over 8 boxes of width<=1: P = 0.6723848135  (eig2/eig1=1.3e-08)
+A=2.0: widths>1 -> [1.1667, 1.3333, 1.5, 1.6667, 1.8333, 2.0]  audited q there = [-6.13e-13  3.39e-13  7.83e-13  4.36e-13 -5.39e-13 -3.35e-13]
+   repaired (q=0 on widths>1): admissible(exact)=True  max R at 31 knots = 0.000e+00 (at a=1.000000)   P = 2 - C = 0.6707507066
+   audited P = 0.670750706627;  repaired exact P - audited = -1.82e-14
+   SDP over 6 boxes of width<=1: P = 0.6722952278  (eig2/eig1=1.7e-07)
+
+SDP solution from check2 (A=2, sign-only), exact evaluation after PSD rounding:
+   SDP X (check2) exact: admissible(exact)=False  max R at 31 knots = 2.571e-09 (at a=1.000000)   P = 2 - C = 0.6729064564
+   diag(X) on widths>1: [1.92e-01 4.08e-02 5.10e-03 2.69e-04 7.98e-06 7.87e-08]
+   max R+ on [1,2] = 1.64e-09;  required |offdiag| from tiny diag is what produces the spurious gain

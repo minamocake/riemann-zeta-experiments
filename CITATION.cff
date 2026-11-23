@@ -1,0 +1,51 @@
+# TODO before publishing: add family-names / given-names (and optionally an ORCID) for each author.
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "riemann-zeta-experiments: computational research on Riemann zeta zeros, pair correlation, Fourier optimization, and adjoint methods"
+type: software
+version: 0.1.0
+authors:
+  - alias: minamocake
+repository-code: "https://github.com/minamocake/riemann-zeta-experiments"
+license: MIT
+abstract: >
+  Research code for bounding multiplicities of zeta zeros with Montgomery's pair-correlation
+  method. Includes exact rational certificates, a result registry that separates computational
+  verification from the status of mathematical assumptions, the preserved pre-audit prototype,
+  and an independent audit. All results assume the Riemann Hypothesis; no new theorem is claimed.
+keywords:
+  - Riemann zeta function
+  - pair correlation
+  - simple zeros
+  - Fourier optimization
+  - exact certificates
+references:
+  - type: article
+    title: "Pair correlation estimates for the zeros of the zeta function via semidefinite programming"
+    authors:
+      - family-names: Chirre
+        given-names: Andrés
+      - family-names: Gonçalves
+        given-names: Felipe
+      - family-names: de Laat
+        given-names: David
+    journal: "Advances in Mathematics"
+    volume: 361
+    year: 2020
+    identifiers:
+      - type: other
+        value: "arXiv:1810.08843"
+  - type: article
+    title: "On Montgomery's pair correlation conjecture: a tale of three integrals"
+    authors:
+      - family-names: Carneiro
+        given-names: Emanuel
+      - family-names: Chandee
+        given-names: Vorrapan
+      - family-names: Chirre
+        given-names: Andrés
+      - family-names: Milinovich
+        given-names: Micah B.
+    identifiers:
+      - type: other
+        value: "arXiv:2108.09258"

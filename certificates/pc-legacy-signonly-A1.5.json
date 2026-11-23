@@ -1,0 +1,76 @@
+{
+ "schema": "riemann-research/box-certificate/v1",
+ "id": "pc-legacy-signonly-A1.5",
+ "family": "centered-boxes",
+ "widths": [
+  "1/8",
+  "1/4",
+  "3/8",
+  "1/2",
+  "5/8",
+  "3/4",
+  "7/8",
+  "1",
+  "9/8",
+  "5/4",
+  "11/8",
+  "3/2"
+ ],
+ "components": [
+  {
+   "weight": "722143163465/969067661431",
+   "vector": [
+    "158894221/119033452845",
+    "1044044756/262912558589",
+    "11264210849/799392696484",
+    "3599120069/230788432690",
+    "2158193827/83075479419",
+    "31119087849/560075455670",
+    "19743747327/438611805841",
+    "682485649841/684627656590",
+    "0",
+    "0",
+    "0",
+    "0"
+   ]
+  }
+ ],
+ "outside": {
+  "mode": "sign-only"
+ },
+ "claimed": {
+  "P_lower_bound": "6723649809/10000000000",
+  "P_lower_bound_decimal": 0.6723649809
+ },
+ "notes": "Legacy rank-one candidate; weights on widths > 1 set to exactly 0 (they were ~1e-12). Widths are the legacy binary floats.",
+ "provenance": {
+  "commit": "unavailable (not a git checkout)",
+  "dirty": null,
+  "generator": "experiments/pair_correlation/signed_kernels/certify_sign_only.py",
+  "inputs": {
+   "A": 1.5,
+   "basis_count": 12,
+   "mode": "sign-only",
+   "source": "legacy signed_sensitivity.optimize_signed(restarts=4)"
+  },
+  "seed": 42,
+  "precision": {
+   "denominator": 1000000000000,
+   "claim_digits": 10
+  },
+  "solver": "SLSQP via legacy signed_sensitivity",
+  "solver_version": "1.18.1",
+  "verifiers": {
+   "certify": "riemann-research/box-certificate/v1",
+   "independent_check": "v1",
+   "package": "0.1.0"
+  },
+  "python": "3.13.18",
+  "libraries": {
+   "numpy": "2.5.5",
+   "scipy": "1.18.1",
+   "cvxpy": "1.9.3"
+  },
+  "created_utc": "2026-11-23T07:08:24Z"
+ }
+}

@@ -1,0 +1,32 @@
+=== nonnegative boxes, independent global solve (U_i = bin width, counterfactual) ===
+A=1.0 baseline: C=1.327550903 P=0.672449097  lam_min(orthonormal tangent)=3.074e-02 KKT resid=6.4e-06
+A=1.1 stage=0 bins=10 C=1.273637 P=0.726363 lam_min_orth=2.654e-02 KKT=3.9e-06
+A=1.1 stage=1 bins=11 C=1.270720 P=0.729280 lam_min_orth=2.778e-02 KKT=2.4e-06
+A=1.1 stage=2 bins=13 C=1.269266 P=0.730734 lam_min_orth=2.783e-02 KKT=2.4e-06
+A=1.5 stage=0 bins=10 C=1.152955 P=0.847045 lam_min_orth=2.073e-02 KKT=3.5e-07
+A=1.5 stage=1 bins=13 C=1.146401 P=0.853599 lam_min_orth=2.033e-02 KKT=3.3e-07
+A=1.5 stage=2 bins=16 C=1.144588 P=0.855412 lam_min_orth=2.029e-02 KKT=3.1e-07
+A=2.0 stage=0 bins=10 C=1.092259 P=0.907741 lam_min_orth=1.516e-02 KKT=5.0e-08
+A=2.0 stage=1 bins=13 C=1.086951 P=0.913049 lam_min_orth=1.519e-02 KKT=9.6e-08
+A=2.0 stage=2 bins=16 C=1.085570 P=0.914430 lam_min_orth=1.521e-02 KKT=3.3e-06
+
+=== signed boxes: SDP (global over PSD-mixtures) vs audited rank-one local results ===
+A=1.1 scale=1: SDP P=0.72636305  audited P=0.72636305  diff=-0.00000pp  eig2/eig1=3.5e-10 [optimal]
+A=1.1 scale=2: SDP P=0.71615702  audited P=0.71615702  diff=+0.00000pp  eig2/eig1=1.3e-10 [optimal]
+A=1.1 scale=4: SDP P=0.69956055  audited P=0.69956055  diff=+0.00000pp  eig2/eig1=7.5e-09 [optimal]
+A=1.1 scale=8: SDP P=0.67697978  audited P=0.67697978  diff=+0.00000pp  eig2/eig1=1.0e-09 [optimal]
+A=1.5 scale=1: SDP P=0.84704480  audited P=0.84704480  diff=-0.00000pp  eig2/eig1=5.2e-13 [optimal]
+A=1.5 scale=2: SDP P=0.77241378  audited P=0.77241378  diff=+0.00000pp  eig2/eig1=6.5e-11 [optimal]
+A=1.5 scale=4: SDP P=0.70935274  audited P=0.70935274  diff=-0.00000pp  eig2/eig1=1.6e-09 [optimal]
+A=1.5 scale=8: SDP P=0.67941026  audited P=0.67941026  diff=+0.00000pp  eig2/eig1=2.6e-10 [optimal]
+A=2.0 scale=1: SDP P=0.90774070  audited P=0.90774070  diff=+0.00000pp  eig2/eig1=7.9e-10 [optimal]
+A=2.0 scale=2: SDP P=0.77436457  audited P=0.77436457  diff=+0.00000pp  eig2/eig1=1.6e-09 [optimal]
+A=2.0 scale=4: SDP P=0.71239311  audited P=0.71239311  diff=+0.00000pp  eig2/eig1=1.3e-09 [optimal]
+A=2.0 scale=8: SDP P=0.68084521  audited P=0.68052404  diff=+0.03212pp  eig2/eig1=5.8e-02 [optimal]
+
+=== sign-only (RH-only, no hypothesis): SDP vs audited ===
+A=1.1: SDP P=0.67244064  audited P=0.67244064  eig2/eig1=3.9e-09 max R+ at knots=0.0e+00 [optimal]
+/home/claude/deliver/riemann-research/audits/2026-11-23-pair-correlation-audit/scripts/check2_reproduce.py:100: UserWarning: Solution may be inaccurate. Try another solver, adjusting the solver settings, or solve with verbose=True for more information.
+  prob.solve(solver='CLARABEL', tol_gap_abs=1e-10, tol_gap_rel=1e-10, tol_feas=1e-10, max_iter=500)
+A=1.5: SDP P=0.67242291  audited P=0.67236498  eig2/eig1=2.6e-02 max R+ at knots=1.8e-10 [optimal_inaccurate]
+A=2.0: SDP P=0.67290647  audited P=0.67075071  eig2/eig1=6.1e-01 max R+ at knots=1.6e-09 [optimal_inaccurate]

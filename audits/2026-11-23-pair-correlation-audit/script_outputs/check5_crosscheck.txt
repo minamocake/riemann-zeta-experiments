@@ -1,0 +1,4 @@
+window functional: frequency side 1.321696323  physical side int f*mu_hat 1.3216963
+f(0) = 1.000000000045, min f on grid = 1.127e-34
+max R on [1,2]: dense grid 1.253838e-04 | knots 1.253838e-04  (grid must not exceed knots)
+audited exact_band_extrema: largest amount a dense grid beats it = 0.00e+00 (<=0 means correct)

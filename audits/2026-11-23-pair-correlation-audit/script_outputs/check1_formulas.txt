@@ -1,0 +1,7 @@
+(a) Fejer exact C = 4/3 => P = 2/3
+(b) max |overlap_kernel - exact| = 5.51e-14;  max rel err weighted_kernel_integral = 2.22e-16
+(c) max |R_K - R_conv| = 1.33e-15  (grid dt=2e-5)
+(d) W=1 boxes: exact C=1.3333333333  audited C=1.3333333333  x-space C=1.3333333  (R0 exact 1.00000000 vs x-space 1.0000000)
+(d) W=5 boxes: exact C=2.6863508503  audited C=2.6863508503  x-space C=2.6863509  (R0 exact 2.47761905 vs x-space 2.4776190)
+(d) W=12 boxes: exact C=1.8292933023  audited C=1.8292933023  x-space C=1.8292933  (R0 exact 1.61240430 vs x-space 1.6124043)
+(e) nonneg q: largest increase of R on grid over 200 random q = 0.00e+00 (should be <=0)

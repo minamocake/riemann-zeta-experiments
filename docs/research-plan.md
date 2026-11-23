@@ -1,0 +1,33 @@
+# Research plan (persistent)
+
+Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or added.
+
+## Current position
+
+* Best RH-only value here: P = 0.677634962 (`pc-provencap-A2`), `proof-pending`, relies on the
+  unreviewed lemma `lemma-intF-8-3`. Pair-correlation benchmark under RH: 0.6792 (Chirre-Gonçalves-de Laat 2020; not the best known value by all methods).
+* The centered-box family cannot use the sign-only relaxation (`neg-signonly-degeneracy`).
+* All caps-mode values above 0.68 depend on unproven hypotheses.
+
+## Open mathematical claims awaiting human review
+
+| Claim | Where | Needed |
+|---|---|---|
+| Deduction from certificate to `N_s ≥ (P − o(1)) N` | `derivations/what-a-certificate-establishes.md` | review of steps C1-C7 |
+| `∫_{b−1/2}^{b+1/2} F ≤ 8/3 + o(1)` under RH | `derivations/int-F-cap.md` | review |
+| Sign-only degeneracy for box mixtures | `derivations/sign-only-degeneracy.md` | review |
+| Refinement strengthens cap hypotheses | `derivations/refinement.md` | review |
+
+## Next research questions (in priority order)
+
+1. Get the four arguments above reviewed by a human mathematician; record reviews in the registry.
+2. Test-function families whose Fourier side is not compactly supported, to approach 0.6792 with
+   certificates (needs validated interval arithmetic instead of rationals).
+3. Replace the 8/3 cap with sharper published bounds (Carneiro-Chandee-Chirre-Milinovich), with
+   the exact statement recorded as a cited assumption.
+4. Dual certificates: lower bounds on the optimum within a family, so "optimal in family" can be certified.
+5. Adjoint and duality methods (planned directories under `experiments/`).
+
+## Not planned for now
+
+Autonomous research agents, multi-agent orchestration, large-scale compute infrastructure.
