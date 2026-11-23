@@ -15,9 +15,13 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
   normalisation, sign-radius and sign-violation diagnostics with rigor labels, and the functional Z by two
   routes. Infrastructure only; no new result and no registry change.
 * Open before B2: (a) the degree bookkeeping in CGdL Section 4.1 (p of degree 2d versus SOS terms in v(x^2));
-  (b) the formulation: Z_inv(f) = (f(0) r + (2/r) int_0^r x f) / fhat(0) is invariant under f -> c f(x/a), so one
-  normalisation plus Z_inv covers all Gaussian widths, while imposing both f(0) = 1 and fhat(0) = 1 on the
-  fixed-width family is a restriction at fixed degree. Decide which one B2 uses.
+  (b) the formulation: Z_inv(f) = (f(0) r + (2/r) int_0^r x f) / fhat(0) is invariant under f -> c f(x/a), so a
+  single common scaling transformation is redundant and one normalisation plus Z_inv covers every common Gaussian
+  width, while imposing both f(0) = 1 and fhat(0) = 1 on the fixed-width family is a restriction at fixed degree.
+  Decide which one B2 uses. Changing the relative widths of several Gaussians in one family is NOT covered by
+  this invariance and remains a genuine design direction;
+  (c) numerical stability of Z for high-degree p: individual Gaussian moments are now computed stably (checked to
+  order 80), but the sum over a monomial basis with mixed-sign coefficients can still cancel.
 * Fourier-side signs of general members are only explored numerically in B1a; certification is B4.
 
 ## Open mathematical claims awaiting human review

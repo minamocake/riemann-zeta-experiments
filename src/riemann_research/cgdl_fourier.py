@@ -42,8 +42,11 @@ satisfies F(0) = Fhat(0) = 1, r(F) = a r(f) and
 
 Z_inv is invariant under f -> c f(x / a) for all c, a > 0, and equals Z on normalised functions.
 Consequences recorded for B2 (not used to change any registry entry):
-  * the Gaussian width is not an independent design parameter for Z: a dilation changes the
-    family member but not Z_inv;
+  * a single common scaling transformation is redundant: dilating the whole function (one
+    Gaussian width shared by every term) changes the family member but not Z_inv. This says
+    nothing about families that combine several Gaussians with different relative widths, e.g.
+    sum_i p_i(x) exp(-pi x^2 / s_i^2): changing the ratios s_i / s_j changes the function space
+    and is not redundant;
   * imposing BOTH f(0) = 1 and fhat(0) = 1 as hard constraints on the fixed-width family
     p(x) exp(-pi x^2) is a genuine restriction at fixed degree (for example
     c (R^2 - x^2) exp(-pi x^2) can satisfy at most one of them), whereas one normalisation
