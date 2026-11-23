@@ -7,7 +7,7 @@
     "cvxpy": "1.9.3",
     "clarabel": "0.11.1",
     "mpmath": "1.4.1",
-    "commit": "18d6963045b7de1648dd3ad0c4c7858992660380"
+    "commit": "aeb8be269b0c67a243c160e15a093092435ec2e5"
   },
   "a0": 1.1892797511079254,
   "runs": [
@@ -96,6 +96,13 @@
           "X3": 1.4856778823195346e-10,
           "X4": 1.3361572804354996e-10
         },
+        "kkt": {
+          "stationarity_max_abs": 1.3142220645079306e-10,
+          "primal_objective": 1.4525472652249225,
+          "dual_objective": 1.4525472651824731,
+          "duality_gap": 4.244937734654286e-11
+        },
+        "q0_positive": true,
         "numerically_acceptable": true,
         "notes": []
       },
@@ -114,6 +121,14 @@
           "rigor": "exact-symbolic",
           "detail": "all coefficients of T p in xi^2 are provably >= 0, so fhat >= 0 on R"
         },
+        "fourier_stationary_minimum": {
+          "unbounded_below": false,
+          "min_value": 0.8408450569081046,
+          "argmin_u": 0.0,
+          "rigor": "numerical-high-precision",
+          "note": "continuous minimum of (Tq)(u) over u >= 0 from stationary points; not a certificate"
+        },
+        "q0_exact_binary_value_positive": true,
         "f0": 1.0,
         "fhat0": 1.0
       },
@@ -248,6 +263,13 @@
           "X3": 1.4483935835781403e-10,
           "X4": 1.0008495663556616e-10
         },
+        "kkt": {
+          "stationarity_max_abs": 9.35914904603985e-11,
+          "primal_objective": 1.4525472652591453,
+          "dual_objective": 1.4525472652184976,
+          "duality_gap": 4.0647707422181156e-11
+        },
+        "q0_positive": true,
         "numerically_acceptable": true,
         "notes": []
       },
@@ -266,6 +288,14 @@
           "rigor": "exploratory-float",
           "detail": "no negative value of T p found on 601 points in [0, 6.0]; this is not a proof (deferred to B4 interval arithmetic)"
         },
+        "fourier_stationary_minimum": {
+          "unbounded_below": false,
+          "min_value": 0.8408450569081046,
+          "argmin_u": 0.0,
+          "rigor": "numerical-high-precision",
+          "note": "continuous minimum of (Tq)(u) over u >= 0 from stationary points; not a certificate"
+        },
+        "q0_exact_binary_value_positive": true,
         "f0": 0.9999999999999999,
         "fhat0": 0.9999999999999999
       },
@@ -359,6 +389,13 @@
           "X3": 9.999999997125424e-11,
           "X4": 1.189279750766176e-10
         },
+        "kkt": {
+          "stationarity_max_abs": 1.0000000174169916e-10,
+          "primal_objective": 1.452547265224922,
+          "dual_objective": 1.452547265224922,
+          "duality_gap": 0.0
+        },
+        "q0_positive": true,
         "numerically_acceptable": true,
         "notes": []
       },
@@ -377,6 +414,14 @@
           "rigor": "exact-symbolic",
           "detail": "all coefficients of T p in xi^2 are provably >= 0, so fhat >= 0 on R"
         },
+        "fourier_stationary_minimum": {
+          "unbounded_below": false,
+          "min_value": 0.9999999999999999,
+          "argmin_u": 0.0,
+          "rigor": "numerical-high-precision",
+          "note": "continuous minimum of (Tq)(u) over u >= 0 from stationary points; not a certificate"
+        },
+        "q0_exact_binary_value_positive": true,
         "f0": 1.1892797511079252,
         "fhat0": 0.9999999999999999
       },
@@ -509,6 +554,13 @@
           "X3": 2.2436960358170653e-10,
           "X4": 2.2472252691814085e-10
         },
+        "kkt": {
+          "stationarity_max_abs": 7.054003908768536e-11,
+          "primal_objective": 1.328646166101496,
+          "dual_objective": 1.3286461661535165,
+          "duality_gap": -5.202038799723141e-11
+        },
+        "q0_positive": true,
         "numerically_acceptable": true,
         "notes": []
       },
@@ -527,6 +579,14 @@
           "rigor": "exploratory-float",
           "detail": "no negative value of T p found on 601 points in [0, 6.0]; this is not a proof (deferred to B4 interval arithmetic)"
         },
+        "fourier_stationary_minimum": {
+          "unbounded_below": false,
+          "min_value": 4.092813391373701e-09,
+          "argmin_u": 1.0668272166273836,
+          "rigor": "numerical-high-precision",
+          "note": "continuous minimum of (Tq)(u) over u >= 0 from stationary points; not a certificate"
+        },
+        "q0_exact_binary_value_positive": true,
         "f0": 1.006836226263278,
         "fhat0": 0.999999999999975
       },
