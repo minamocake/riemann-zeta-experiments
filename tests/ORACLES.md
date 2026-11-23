@@ -19,6 +19,7 @@ one is practical.
 | `test_reproduction.py::test_sensitivity_formula...` | Danskin's theorem versus re-optimised finite differences. |
 | `test_historical_failures.py` | Specification (each stored input must be rejected) and exact evaluation by both verifiers. |
 | `test_english_only.py` | Unicode script ranges. |
+| `test_cgdl_fourier.py` | Two implementations of the Gaussian-polynomial transform (Laguerre closed form of CGdL Section 4.1 versus the differentiation identity FT[x^2 h] = -(hhat)''/(4 pi^2)), compared exactly in Q[pi, 1/pi]. Fourier inversion T(T p) = p (exact). Hand-derived closed forms. Direct Fourier quadrature at 40 digits. Fejér kernel and Z(H) = 4/3 (Montgomery 1973). Z by incomplete-gamma moments versus quadrature in the dilated variable. Exact square-free decomposition and Sturm sequences for sign radii. Mutation check during development: corrupting one Laguerre coefficient makes two tests fail. |
 
 ## Characterization values (recorded from runs) and their independent pairing
 
@@ -29,6 +30,7 @@ one is practical.
 | Signed caps values in the registry | legacy rank-one optimiser | independent SDP solve (different algorithm and solver) |
 | `legacy_run_outputs/` comparisons (`test_legacy_preservation.py`) | archived legacy outputs | none needed: these tests assert unchanged legacy behaviour by design |
 | `tests/data/historical_failures.json` | legacy code (deterministic generator) | the tests check rejection by the core and both exact verifiers |
+| Z = 1.4525472652249223, (T p)(2) = -3.2077135983, fhat(2) = -1.11863955e-5 (`test_cgdl_fourier.py`) | separate scipy and mpmath computations made while writing the B1a specification | closed form versus quadrature inside the same tests; exact symbolic transforms |
 
 Optimality claims ("global in family") rest on convexity checks or SDP rank-one tightness and are
 numerical; they do not affect the validity of any bound.
