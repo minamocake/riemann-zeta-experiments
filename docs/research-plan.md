@@ -23,6 +23,20 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
   (c) numerical stability of Z for high-degree p: individual Gaussian moments are now computed stably (checked to
   order 80), but the sum over a monomial basis with mixed-sign coefficients can still cancel.
 * Fourier-side signs of general members are only explored numerically in B1a; certification is B4.
+* B2-mini (`src/riemann_research/cgdl_sdp.py`, `experiments/cgdl_reproduction/b2_mini/`): question (b) answered
+  numerically at deg_q_max = 3: with both hard normalisations at fixed width (A) the optimum stays at
+  1.45255, with one normalisation and Z_inv (B) it is 1.32865 (candidate, not certified). B2-full should use
+  formulation B. Question (a) is sidestepped by m / deg_q_max = 2m + 1, not resolved for the paper's notation.
+* New open questions: certifying near-active Fourier constraints (B4); one-sided sensitivity in
+  rho = R / width at rho = 1 (C0).
+* Findings to explain in Phase C (dual and adjoint sensitivity), recorded from B2-mini:
+  - Why A's extra constraint q(0) / (Tq)(0) = a0 blocks all improvement at deg_q_max = 3 (V_A stays at
+    1.45255 while V_B = 1.32865). Goal: an algebraic explanation via the active constraints and the dual
+    price of that constraint, not only the numerical gap.
+  - Fourier-side near-contact in B at m = 1: (Tq)(u) has a grid minimum of about 4.9e-7 at u = 1.067
+    (exploratory-float), with eigenvalues of order 1e-9 in X_3 and X_4. Identify whether this is a true
+    double zero of the optimal Fourier polynomial and how the contact point moves with rho and degree.
+  - Feasible improvement directions: which perturbations of the optimum keep all constraints satisfied.
 
 ## Open mathematical claims awaiting human review
 

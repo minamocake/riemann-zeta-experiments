@@ -2,6 +2,11 @@
 
 ## 0.1.0 (unreleased)
 
+### Research B2-mini: first small SDP
+
+* New module `cgdl_sdp` (formulations A and B, deg_q_max = 2m + 1), tests `test_cgdl_sdp.py`, experiment
+  `experiments/cgdl_reproduction/b2_mini/` with raw outputs. Numerical candidates only; no registry change.
+
 ### Research B1a: Gaussian-polynomial Fourier foundations
 
 * New module `cgdl_fourier` and tests `test_cgdl_fourier.py` (two independent transform routes, exact
