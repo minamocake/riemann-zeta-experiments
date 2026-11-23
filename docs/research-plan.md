@@ -9,6 +9,17 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
 * The centered-box family cannot use the sign-only relaxation (`neg-signonly-degeneracy`).
 * All caps-mode values above 0.68 depend on unproven hypotheses.
 
+## Research B: reproducing the CGdL pair-correlation benchmark (in progress)
+
+* B1a (`src/riemann_research/cgdl_fourier.py`): exact Gaussian-polynomial Fourier operator, scaling and
+  normalisation, sign-radius and sign-violation diagnostics with rigor labels, and the functional Z by two
+  routes. Infrastructure only; no new result and no registry change.
+* Open before B2: (a) the degree bookkeeping in CGdL Section 4.1 (p of degree 2d versus SOS terms in v(x^2));
+  (b) the formulation: Z_inv(f) = (f(0) r + (2/r) int_0^r x f) / fhat(0) is invariant under f -> c f(x/a), so one
+  normalisation plus Z_inv covers all Gaussian widths, while imposing both f(0) = 1 and fhat(0) = 1 on the
+  fixed-width family is a restriction at fixed degree. Decide which one B2 uses.
+* Fourier-side signs of general members are only explored numerically in B1a; certification is B4.
+
 ## Open mathematical claims awaiting human review
 
 | Claim | Where | Needed |

@@ -2,6 +2,12 @@
 
 ## 0.1.0 (unreleased)
 
+### Research B1a: Gaussian-polynomial Fourier foundations
+
+* New module `cgdl_fourier` and tests `test_cgdl_fourier.py` (two independent transform routes, exact
+  normalisation, exact sign radii, labelled sign diagnostics, Z by two routes). No registry or status change.
+* New core dependency `mpmath` (pure Python) for high-precision checks.
+
 ### Fixes from the independent review of the changed files (2026-11-23)
 
 * F2: exact coverage check in `Partition.build` (no 1e-12 tolerance); finite positive support required.
