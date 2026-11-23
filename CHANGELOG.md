@@ -6,6 +6,11 @@
 
 * New module `cgdl_sdp` (formulations A and B, deg_q_max = 2m + 1), tests `test_cgdl_sdp.py`, experiment
   `experiments/cgdl_reproduction/b2_mini/` with raw outputs. Numerical candidates only; no registry change.
+* Review of PR #2: continuous Fourier minimum from stationary points (`even_poly_minimum`; B, m = 1:
+  4.09e-9 at u = 1.0668, versus 4.9e-7 on the grid); explicit q(0) > 0 check; KKT stationarity and
+  primal-dual gap diagnostics. Raw outputs regenerated with identical numerics plus the new fields.
+  Research plan: priorities, literature (Alpöge-Furman, Lamzouri, Das-Ismoilov-Ramos) and the Lean
+  verification of RH recorded without any status change. mpmath >= 1.4 (`polyroots(asc=True)`).
 
 ### Research B1a: Gaussian-polynomial Fourier foundations
 
