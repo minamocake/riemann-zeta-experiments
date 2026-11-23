@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.13,<3.14"  # only 3.13 is tested; widen after CI covers more versions
-dependencies = ["numpy>=1.24", "scipy>=1.11", "pyyaml>=6", "mpmath>=1.3"]
+dependencies = ["numpy>=1.24", "scipy>=1.11", "pyyaml>=6", "mpmath>=1.4"]
 
 [project.optional-dependencies]
 sdp = ["cvxpy>=1.4", "clarabel>=0.6"]
