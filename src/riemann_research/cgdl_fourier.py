@@ -83,7 +83,10 @@ import mpmath
 
 RIGOR_LABELS = ("exact-symbolic", "exact-rational-sturm", "numerical-high-precision", "exploratory-float")
 
-# Rigorous rational enclosure of pi (pi = 3.14159265358979323846...).
+# Rational enclosure of pi used for exact sign decisions. Source: the decimal expansion
+# pi = 3.14159265358979323846... (OEIS A000796). Reproducible rigorous verification:
+# `pi_enclosure_machin` computes exact rational bounds from Machin's formula, and the test suite
+# checks PI_LOWER < lower bound and upper bound < PI_UPPER in exact rational arithmetic.
 PI_LOWER = Fraction("3.14159265358979")
 PI_UPPER = Fraction("3.14159265358980")
 
@@ -93,6 +96,32 @@ Rational = int | Fraction
 class InadmissibleError(ValueError):
     """Raised when a quantity is requested that is undefined for the given function."""
 
+
+def _arctan_inverse_bounds(m: int, terms: int) -> tuple[Fraction, Fraction]:
+    """Exact rational bounds for arctan(1/m), m >= 2, from the alternating Taylor series.
+
+    The terms (1/m)^(2n+1)/(2n+1) decrease strictly, so consecutive partial sums bracket the value.
+    """
+    if m < 2 or terms < 1:
+        raise ValueError("need m >= 2 and terms >= 1")
+    x = Fraction(1, m)
+    partial = [Fraction(0)]
+    for n in range(terms + 1):
+        partial.append(partial[-1] + (-1) ** n * x ** (2 * n + 1) / (2 * n + 1))
+    a, b = partial[-2], partial[-1]
+    return min(a, b), max(a, b)
+
+
+def pi_enclosure_machin(terms: int = 30) -> tuple[Fraction, Fraction]:
+    """Rigorous rational (lo, hi) with lo < pi < hi from Machin's formula (1706):
+
+        pi = 16 arctan(1/5) - 4 arctan(1/239).
+
+    Exact rational arithmetic only; no floating point is involved.
+    """
+    a_lo, a_hi = _arctan_inverse_bounds(5, terms)
+    b_lo, b_hi = _arctan_inverse_bounds(239, terms)
+    return 16 * a_lo - 4 * b_hi, 16 * a_hi - 4 * b_lo
 
 
 # =========================================================================== exact Q[pi, 1/pi]

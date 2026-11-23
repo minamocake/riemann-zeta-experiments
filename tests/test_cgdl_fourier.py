@@ -172,6 +172,13 @@ def test_gaussian_moments_through_order_80_match_quadrature(r):
         assert worst < mpmath.mpf("1e-45"), worst
 
 
+def test_pi_bounds_are_verified_rigorously_by_machin_formula():
+    """Exact rational arithmetic: PI_LOWER < lo < pi < hi < PI_UPPER (Machin's formula)."""
+    lo, hi = cf.pi_enclosure_machin(30)
+    assert cf.PI_LOWER < lo < hi < cf.PI_UPPER
+    assert hi - lo < Fraction(1, 10 ** 40)
+
+
 # --------------------------------------------------------------------------- B1-C: triangle baseline
 
 def test_triangle_baseline_exact_and_numerical():
