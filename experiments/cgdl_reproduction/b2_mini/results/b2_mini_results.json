@@ -1,0 +1,553 @@
+{
+  "description": "B2-mini: formulations A and B, basis degree m in {0, 1} (deg_q_max in {1, 3}), rho = 1",
+  "status": "numerical candidates only; no certificate; no registry change; assumes RH for any zeta use",
+  "environment": {
+    "python": "3.13.18",
+    "numpy": "2.5.5",
+    "cvxpy": "1.9.3",
+    "clarabel": "0.11.1",
+    "mpmath": "1.4.1",
+    "commit": "18d6963045b7de1648dd3ad0c4c7858992660380"
+  },
+  "a0": 1.1892797511079254,
+  "runs": [
+    {
+      "result": {
+        "formulation": "A",
+        "m": 0,
+        "rho": 1.0,
+        "a0": 1.1892797511079254,
+        "status": "optimal",
+        "solver": "CLARABEL",
+        "solver_version": "0.11.1",
+        "objective": 1.4525472652249225,
+        "q": [
+          1.0,
+          -1.0
+        ],
+        "tq": [
+          0.8408450569081046,
+          1.0
+        ],
+        "grams": {
+          "X2": [
+            [
+              1.0
+            ]
+          ],
+          "X3": [
+            [
+              0.8408450569081045
+            ]
+          ],
+          "X4": [
+            [
+              1.0
+            ]
+          ]
+        },
+        "gram_eigenvalues": {
+          "X2": [
+            1.0
+          ],
+          "X3": [
+            0.8408450569081045
+          ],
+          "X4": [
+            1.0
+          ]
+        },
+        "primal_residuals": {
+          "fourier_match_max_abs": 1.1102230246251565e-16,
+          "q0_minus_1": 0.0,
+          "a0_tq0_minus_1": 0.0,
+          "min_gram_eigenvalue": 0.8408450569081045
+        },
+        "duals": {
+          "X2": [
+            [
+              1.3361572804356025e-10
+            ]
+          ],
+          "X3": [
+            [
+              1.766886622111526e-10
+            ]
+          ],
+          "X4": [
+            [
+              1.3361572804354996e-10
+            ]
+          ],
+          "fourier_match": [
+            -4.526661709189938e-11,
+            -2.1936829243307193e-12
+          ],
+          "q0": -0.7262736325912366,
+          "a0_tq0": -0.7262736325912366
+        },
+        "dual_psd_min_eigenvalues": {
+          "X2": 1.3361572804356025e-10,
+          "X3": 1.766886622111526e-10,
+          "X4": 1.3361572804354996e-10
+        },
+        "complementarity": {
+          "X2": 1.3361572804356025e-10,
+          "X3": 1.4856778823195346e-10,
+          "X4": 1.3361572804354996e-10
+        },
+        "numerically_acceptable": true,
+        "notes": []
+      },
+      "deg_q_max": 1,
+      "independent_checks": {
+        "sign_radius_admissible": true,
+        "sign_radius_reason": "eventually non-positive",
+        "r_of_q": 1.0,
+        "r_minus_rho": 0.0,
+        "z_closed_form": 1.4525472652249223,
+        "z_quadrature": 1.4525472652249223,
+        "z_routes_abs_diff": 0.0,
+        "z_vs_solver_abs_diff": 2.220446049250313e-16,
+        "fourier_sign": {
+          "passed": true,
+          "rigor": "exact-symbolic",
+          "detail": "all coefficients of T p in xi^2 are provably >= 0, so fhat >= 0 on R"
+        },
+        "f0": 1.0,
+        "fhat0": 1.0
+      },
+      "fourier_grid_minimum": {
+        "min_value": 0.8408450569081046,
+        "argmin_u": 0.0,
+        "grid": "8001 points on [0, 8.0]",
+        "rigor": "exploratory-float"
+      }
+    },
+    {
+      "result": {
+        "formulation": "A",
+        "m": 1,
+        "rho": 1.0,
+        "a0": 1.1892797511079254,
+        "status": "optimal",
+        "solver": "CLARABEL",
+        "solver_version": "0.11.1",
+        "objective": 1.4525472652591453,
+        "q": [
+          0.9999999999999999,
+          -1.0000000007341578,
+          4.668338867727397e-09,
+          -3.934180840280564e-09
+        ],
+        "tq": [
+          0.8408450569081046,
+          1.000000000760651,
+          -4.723826048493776e-09,
+          3.934180840280564e-09
+        ],
+        "grams": {
+          "X2": [
+            [
+              0.9999999999999999,
+              -3.6707901372341665e-10
+            ],
+            [
+              -3.6707901372341665e-10,
+              3.934180840280564e-09
+            ]
+          ],
+          "X3": [
+            [
+              0.8408450569081047,
+              -0.0008298117919419589
+            ],
+            [
+              -0.0008298117919419589,
+              0.00010800370299126683
+            ]
+          ],
+          "X4": [
+            [
+              1.001659624344535,
+              -5.40042134086579e-05
+            ],
+            [
+              -5.40042134086579e-05,
+              3.934180730914926e-09
+            ]
+          ]
+        },
+        "gram_eigenvalues": {
+          "X2": [
+            3.934180840145817e-09,
+            0.9999999999999999
+          ],
+          "X3": [
+            0.00010718467528621392,
+            0.8408458759358097
+          ],
+          "X4": [
+            1.0225578622447083e-09,
+            1.0016596272561578
+          ]
+        },
+        "primal_residuals": {
+          "fourier_match_max_abs": 1.1102230246251565e-16,
+          "q0_minus_1": -1.1102230246251565e-16,
+          "a0_tq0_minus_1": 0.0,
+          "min_gram_eigenvalue": 1.0225578622447083e-09
+        },
+        "duals": {
+          "X2": [
+            [
+              5.023477325670373e-11,
+              4.890482900838152e-12
+            ],
+            [
+              4.890482900838152e-12,
+              0.0017079011571660794
+            ]
+          ],
+          "X3": [
+            [
+              5.974528835106124e-11,
+              7.608858659837585e-11
+            ],
+            [
+              7.608858659837585e-11,
+              8.77091282645352e-07
+            ]
+          ],
+          "X4": [
+            [
+              1.6702306497342265e-10,
+              8.770002786598224e-07
+            ],
+            [
+              8.770002786598224e-07,
+              0.006992082574562488
+            ]
+          ],
+          "fourier_match": [
+            3.125877203933044e-11,
+            -7.606539259682219e-11,
+            -8.770002786348365e-07,
+            -0.006992082483558429
+          ],
+          "q0": -0.9236556941926262,
+          "a0_tq0": -0.5288915710258715
+        },
+        "dual_psd_min_eigenvalues": {
+          "X2": 5.02347732427001e-11,
+          "X3": 5.973868713694252e-11,
+          "X4": 5.702300607250691e-11
+        },
+        "complementarity": {
+          "X2": 5.695396526272913e-11,
+          "X3": 1.4483935835781403e-10,
+          "X4": 1.0008495663556616e-10
+        },
+        "numerically_acceptable": true,
+        "notes": []
+      },
+      "deg_q_max": 3,
+      "independent_checks": {
+        "sign_radius_admissible": true,
+        "sign_radius_reason": "eventually non-positive",
+        "r_of_q": 1.0,
+        "r_minus_rho": 3.5398419132697115e-17,
+        "z_closed_form": 1.4525472652591453,
+        "z_quadrature": 1.4525472652591453,
+        "z_routes_abs_diff": 0.0,
+        "z_vs_solver_abs_diff": 0.0,
+        "fourier_sign": {
+          "passed": null,
+          "rigor": "exploratory-float",
+          "detail": "no negative value of T p found on 601 points in [0, 6.0]; this is not a proof (deferred to B4 interval arithmetic)"
+        },
+        "f0": 0.9999999999999999,
+        "fhat0": 0.9999999999999999
+      },
+      "fourier_grid_minimum": {
+        "min_value": 0.8408450569081046,
+        "argmin_u": 0.0,
+        "grid": "8001 points on [0, 8.0]",
+        "rigor": "exploratory-float"
+      }
+    },
+    {
+      "result": {
+        "formulation": "B",
+        "m": 0,
+        "rho": 1.0,
+        "a0": 1.1892797511079254,
+        "status": "optimal",
+        "solver": "CLARABEL",
+        "solver_version": "0.11.1",
+        "objective": 1.452547265224922,
+        "q": [
+          1.1892797511079252,
+          -1.1892797511079252
+        ],
+        "tq": [
+          0.9999999999999999,
+          1.1892797511079252
+        ],
+        "grams": {
+          "X2": [
+            [
+              1.1892797511079252
+            ]
+          ],
+          "X3": [
+            [
+              0.9999999999999998
+            ]
+          ],
+          "X4": [
+            [
+              1.1892797511079252
+            ]
+          ]
+        },
+        "gram_eigenvalues": {
+          "X2": [
+            1.1892797511079252
+          ],
+          "X3": [
+            0.9999999999999998
+          ],
+          "X4": [
+            1.1892797511079252
+          ]
+        },
+        "primal_residuals": {
+          "fourier_match_max_abs": 1.1102230246251565e-16,
+          "tq0_minus_1": -1.1102230246251565e-16,
+          "min_gram_eigenvalue": 0.9999999999999998
+        },
+        "duals": {
+          "X2": [
+            [
+              9.999999997126419e-11
+            ]
+          ],
+          "X3": [
+            [
+              9.999999997125426e-11
+            ]
+          ],
+          "X4": [
+            [
+              9.999999997126419e-11
+            ]
+          ],
+          "fourier_match": [
+            1.7704433613944186e-18,
+            1.770434972552991e-18
+          ],
+          "tq0": -1.452547265224922
+        },
+        "dual_psd_min_eigenvalues": {
+          "X2": 9.999999997126419e-11,
+          "X3": 9.999999997125426e-11,
+          "X4": 9.999999997126419e-11
+        },
+        "complementarity": {
+          "X2": 1.189279750766176e-10,
+          "X3": 9.999999997125424e-11,
+          "X4": 1.189279750766176e-10
+        },
+        "numerically_acceptable": true,
+        "notes": []
+      },
+      "deg_q_max": 1,
+      "independent_checks": {
+        "sign_radius_admissible": true,
+        "sign_radius_reason": "eventually non-positive",
+        "r_of_q": 1.0,
+        "r_minus_rho": 0.0,
+        "z_closed_form": 1.4525472652249223,
+        "z_quadrature": 1.4525472652249223,
+        "z_routes_abs_diff": 0.0,
+        "z_vs_solver_abs_diff": 2.220446049250313e-16,
+        "fourier_sign": {
+          "passed": true,
+          "rigor": "exact-symbolic",
+          "detail": "all coefficients of T p in xi^2 are provably >= 0, so fhat >= 0 on R"
+        },
+        "f0": 1.1892797511079252,
+        "fhat0": 0.9999999999999999
+      },
+      "fourier_grid_minimum": {
+        "min_value": 0.9999999999999999,
+        "argmin_u": 0.0,
+        "grid": "8001 points on [0, 8.0]",
+        "rigor": "exploratory-float"
+      }
+    },
+    {
+      "result": {
+        "formulation": "B",
+        "m": 1,
+        "rho": 1.0,
+        "a0": 1.1892797511079254,
+        "status": "optimal",
+        "solver": "CLARABEL",
+        "solver_version": "0.11.1",
+        "objective": 1.328646166101496,
+        "q": [
+          1.006836226263278,
+          0.3837893939578192,
+          1.0422654026986593,
+          -2.4328910229197565
+        ],
+        "tq": [
+          0.9999999999999751,
+          1.3940836897175275,
+          -4.765834081824995,
+          2.4328910229197565
+        ],
+        "grams": {
+          "X2": [
+            [
+              1.006836226263278,
+              0.6953128101105486
+            ],
+            [
+              0.6953128101105486,
+              2.4328910229197565
+            ]
+          ],
+          "X3": [
+            [
+              0.9999999999999779,
+              -0.8786626006678484
+            ],
+            [
+              -0.8786626006678484,
+              0.7720479674382144
+            ]
+          ],
+          "X4": [
+            [
+              3.151408891053229,
+              -2.768941024631605
+            ],
+            [
+              -2.768941024631605,
+              2.4328910229197587
+            ]
+          ]
+        },
+        "gram_eigenvalues": {
+          "X2": [
+            0.723937937268128,
+            2.7157893119149064
+          ],
+          "X3": [
+            9.174754844742949e-10,
+            1.772047966520717
+          ],
+          "X4": [
+            4.843918599561903e-10,
+            5.5842999134885964
+          ]
+        },
+        "primal_residuals": {
+          "fourier_match_max_abs": 4.6629367034256575e-15,
+          "tq0_minus_1": -2.4868995751603507e-14,
+          "min_gram_eigenvalue": 4.843918599561903e-10
+        },
+        "duals": {
+          "X2": [
+            [
+              1.4774527719875332e-10,
+              -4.379330319113217e-11
+            ],
+            [
+              -4.379330319113217e-11,
+              6.512658881963428e-11
+            ]
+          ],
+          "X3": [
+            [
+              0.05264511419696298,
+              0.05991524263713373
+            ],
+            [
+              0.05991524263713373,
+              0.068189353612927
+            ]
+          ],
+          "X4": [
+            [
+              0.05991524270575071,
+              0.068189353544323
+            ],
+            [
+              0.068189353544323,
+              0.0776060936628331
+            ]
+          ],
+          "fourier_match": [
+            -0.05264511412842618,
+            -0.05991524263715698,
+            -0.06818935354439627,
+            -0.0776060935943091
+          ],
+          "tq0": -1.3286461661535165
+        },
+        "dual_psd_min_eigenvalues": {
+          "X2": 4.623364632702597e-11,
+          "X3": 6.374856545421359e-11,
+          "X4": 3.353595179333979e-12
+        },
+        "complementarity": {
+          "X2": 2.4630110122399043e-10,
+          "X3": 2.2436960358170653e-10,
+          "X4": 2.2472252691814085e-10
+        },
+        "numerically_acceptable": true,
+        "notes": []
+      },
+      "deg_q_max": 3,
+      "independent_checks": {
+        "sign_radius_admissible": true,
+        "sign_radius_reason": "eventually non-positive",
+        "r_of_q": 1.0,
+        "r_minus_rho": 0.0,
+        "z_closed_form": 1.3286461661015292,
+        "z_quadrature": 1.3286461661015292,
+        "z_routes_abs_diff": 0.0,
+        "z_vs_solver_abs_diff": 3.3084646133829665e-14,
+        "fourier_sign": {
+          "passed": null,
+          "rigor": "exploratory-float",
+          "detail": "no negative value of T p found on 601 points in [0, 6.0]; this is not a proof (deferred to B4 interval arithmetic)"
+        },
+        "f0": 1.006836226263278,
+        "fhat0": 0.999999999999975
+      },
+      "fourier_grid_minimum": {
+        "min_value": 4.855417409982986e-07,
+        "argmin_u": 1.067,
+        "grid": "8001 points on [0, 8.0]",
+        "rigor": "exploratory-float"
+      }
+    }
+  ],
+  "comparison": {
+    "m=0": {
+      "V_A": 1.4525472652249225,
+      "V_B": 1.452547265224922,
+      "V_A_minus_V_B": 4.440892098500626e-16
+    },
+    "m=1": {
+      "V_A": 1.4525472652591453,
+      "V_B": 1.328646166101496,
+      "V_A_minus_V_B": 0.12390109915764924
+    }
+  }
+}
