@@ -42,6 +42,14 @@ Last updated: 2026-11-23 (v0.1). Update this file when a question is resolved or
     V_A - V_B needs the path between the two problems, including active-set changes.
   - Feasible improvement directions: which perturbations of the optimum keep all constraints satisfied.
 
+* B2-full S1 (`src/riemann_research/cgdl_laguerre.py`, `experiments/cgdl_reproduction/b2_full/`): formulation B in
+  the paper's Laguerre basis. Our affine maps reproduce CGdL's published d = 40 witness value to 4e-16. Accepted
+  float64 optima decrease from 1.32675 (m = 1) to 1.3207724 (m = 30, 67.92% at 4 digits); m = 40 only
+  OPTIMAL_INACCURATE. Numerical candidates, not certified.
+* New open questions from S1: (d) does B (q(0) free) go below CGdL's reduced-model value at d = 40, and by how
+  much (needs multiprecision); (e) V_B(rho) flattens with degree while R converges to about 1.00387: a
+  quantitative statement of this flattening; (f) certifying the near-active Fourier side of the S1 candidates.
+
 ## Priorities after B2-mini (agreed 2026-11-23)
 
 1. B2-full: CGdL reproduction with formulation B (one normalisation, dilation-invariant Z).
