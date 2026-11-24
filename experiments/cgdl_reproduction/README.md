@@ -7,4 +7,4 @@ otherwise; nothing here changes `results/registry.yaml`. Every use for zeta zero
 | Directory | Script | Produces |
 |---|---|---|
 | `b2_mini/` | `run_b2_mini.py` (needs cvxpy) | `b2_mini/results/b2_mini_results.json` |
-| `b2_full/` | `run_s1.py` (needs cvxpy), `check_published_witness.py <Z-40.txt>` | `b2_full/results/s1_sweep.json`, `b2_full/results/published_witness_check.json` |
+| `b2_full/` | `run_s1.py` (needs cvxpy), `replay_s1.py` (no solver), `check_published_witness.py <Z-40.txt>` | `b2_full/results/s1_sweep.json`, `b2_full/results/s1_witnesses.json`, `b2_full/results/published_witness_check.json` |
