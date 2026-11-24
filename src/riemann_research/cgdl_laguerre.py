@@ -149,8 +149,14 @@ class LinearModel:
 
 
 def build_model(m: int, rho: float, basis: str = "hermite") -> LinearModel:
-    if m < 0 or rho <= 0 or basis not in BASES:
-        raise ValueError("need m >= 0, rho > 0 and a known basis")
+    if isinstance(m, bool) or not isinstance(m, (int, np.integer)) or m < 0:
+        raise ValueError("m must be a non-negative integer")
+    if isinstance(rho, bool) or not isinstance(rho, (int, float, np.integer, np.floating)) \
+            or not math.isfinite(rho) or rho <= 0:
+        raise ValueError("rho must be a finite number > 0")
+    if basis not in BASES:
+        raise ValueError(f"unknown basis {basis!r}")
+    m, rho = int(m), float(rho)
     N = 2 * m + 2                      # coordinates of q and Tq: degrees 0..2m+1
     P = product_tensor(basis, m)       # (n, n, 2m + 1)
     Y = multiply_by_y_matrix(2 * m + 1)
@@ -193,18 +199,63 @@ class S1Result:
     R_physical: float | None = None
     gram_min_eig: dict = field(default_factory=dict)
     gram_max_eig: dict = field(default_factory=dict)
+    dual_min_eig: dict = field(default_factory=dict)   # minimum eigenvalue of each PSD dual block
     residual_max_abs: float | None = None
     kkt_stationarity_max_abs: float | None = None
     duality_gap: float | None = None
+    complementarity: float | None = None             # sum_b <X_b, S_b>
     seconds: float = 0.0
     notes: list = field(default_factory=list)
-    grams: dict = field(default_factory=dict)
+    grams: dict = field(default_factory=dict)        # primal Gram matrices X2, X3, X4
+    duals: dict = field(default_factory=dict)        # {"eq": [y_k], "psd": {block: S_b}}
 
-    def as_dict(self, with_grams: bool = False) -> dict:
+    def as_dict(self, with_witness: bool = False) -> dict:
         d = dict(self.__dict__)
-        if not with_grams:
+        if not with_witness:
             d.pop("grams")
+            d.pop("duals")
         return d
+
+
+BLOCKS = ("X2", "X3", "X4")
+
+
+def witness_diagnostics(model: LinearModel, X: dict, y=None, S: dict | None = None) -> dict:
+    """Diagnostics of a primal (and optionally dual) point from the explicit affine data alone (numpy, no solver).
+
+    Dual convention (CVXPY): L = <C, X> + sum_k y_k (A_k(X) - b_k) - sum_b <S_b, X_b>, so stationarity is
+    C_b + sum_k y_k A_kb - S_b = 0, the dual objective is -sum_k y_k b_k, and dual feasibility is S_b PSD.
+    """
+    out = {}
+    out["objective"] = float(sum(np.sum(M * X[b]) for b, M in model.C.items()))
+    out["residual_max_abs"] = float(max(abs(sum(np.sum(M * X[b]) for b, M in mats.items()) - rhs)
+                                        for _, mats, rhs in model.A))
+    S2 = np.einsum("ij,ijk->k", X["X2"], product_tensor(model.basis, model.m))
+    a = model.qmap @ S2
+    w0 = np.array([float(w_at_zero(k)) for k in range(len(a))])
+    out["q_w"] = a.tolist()
+    out["q0"] = float(w0 @ a)
+    out["tq0"] = float((np.array([(-1.0) ** k for k in range(len(a))]) * w0) @ a)
+    out["R_physical"] = (model.rho * out["q0"] / out["tq0"]
+                         if math.isfinite(out["tq0"]) and out["tq0"] != 0 else None)
+    out["gram_min_eig"], out["gram_max_eig"] = {}, {}
+    for b in BLOCKS:
+        ev = np.linalg.eigvalsh(X[b])
+        out["gram_min_eig"][b], out["gram_max_eig"][b] = float(ev[0]), float(ev[-1])
+    if y is not None and S is not None:
+        y = np.asarray(y, dtype=float)
+        worst = 0.0
+        for b in BLOCKS:
+            Rm = model.C.get(b, 0) - S[b]
+            for k, (_, mats, _) in enumerate(model.A):
+                if b in mats:
+                    Rm = Rm + y[k] * mats[b]
+            worst = max(worst, float(np.max(np.abs(Rm))))
+        out["kkt_stationarity_max_abs"] = worst
+        out["duality_gap"] = out["objective"] - float(-sum(y[k] * rhs for k, (_, _, rhs) in enumerate(model.A)))
+        out["dual_min_eig"] = {b: float(np.linalg.eigvalsh(S[b])[0]) for b in BLOCKS}
+        out["complementarity"] = float(sum(np.sum(X[b] * S[b]) for b in BLOCKS))
+    return out
 
 
 # Clarabel settings tried in order. Interior-point iterations on these near-degenerate SDPs (optimal
@@ -220,82 +271,183 @@ SETTINGS_LADDER = (
 
 
 def solve(m: int, rho: float = 1.0, basis: str = "paper", ladder=SETTINGS_LADDER) -> S1Result:
-    """Solve formulation B with Clarabel (float64). Returns a numerical candidate with diagnostics."""
+    """Solve formulation B with Clarabel (float64). Returns a numerical candidate with diagnostics.
+
+    The rungs of `ladder` are tried in order until one reports OPTIMAL. The reported point is the one
+    returned by the last rung that produced a solution (OPTIMAL or OPTIMAL_INACCURATE), and `solver`
+    names that rung; a rung that raises a solver error never overwrites it. If no rung produced a
+    solution, the status is "solver-error" and no point is reported.
+    """
     import clarabel
     import cvxpy as cp
 
     t0 = time.time()
     model = build_model(m, rho, basis)
     n = m + 1
-    X = {b: cp.Variable((n, n), symmetric=True, name=b) for b in ("X2", "X3", "X4")}
+    X = {b: cp.Variable((n, n), symmetric=True, name=b) for b in BLOCKS}
 
     def lin(mats):
         return sum(cp.sum(cp.multiply(M, X[b])) for b, M in mats.items())
 
-    cons = [X[b] >> 0 for b in X]
+    cons = [X[b] >> 0 for b in BLOCKS]
     eq = [lin(mats) == rhs for _, mats, rhs in model.A]
     prob = cp.Problem(cp.Minimize(lin(model.C)), cons + eq)
     res = S1Result(m, rho, basis, "not-run", f"CLARABEL {clarabel.__version__}")
+    snap = None        # (rung, status, primal, eq duals, psd duals) of the last rung that produced a solution
     for name, opts in ladder:
         try:
             prob.solve(solver=cp.CLARABEL, **opts)
         except cp.error.SolverError:
             res.notes.append(f"settings {name}: solver error (NumericalError)")
             continue
-        res.notes.append(f"settings {name}: {prob.status}")
-        if prob.status == cp.OPTIMAL:
+        status = prob.status
+        res.notes.append(f"settings {name}: {status}")
+        if status in (cp.OPTIMAL, cp.OPTIMAL_INACCURATE) and all(X[b].value is not None for b in BLOCKS):
+            ys = [c.dual_value for c in eq]
+            Ss = [c.dual_value for c in cons]
+            duals_ok = all(v is not None for v in ys + Ss)
+            snap = (name, status, {b: np.array(X[b].value, dtype=float) for b in BLOCKS},
+                    [float(np.asarray(v)) for v in ys] if duals_ok else None,
+                    {b: np.array(Ss[i], dtype=float) for i, b in enumerate(BLOCKS)} if duals_ok else None)
+        if status == cp.OPTIMAL:
             break
-    else:
-        if prob.status not in (cp.OPTIMAL, cp.OPTIMAL_INACCURATE):
-            res.status = "solver-error"
-            res.seconds = time.time() - t0
-            return res
-    res.solver = f"CLARABEL {clarabel.__version__} ({res.notes[-1].split(':')[0]})"
-    res.status = str(prob.status)
     res.seconds = time.time() - t0
-    if prob.status not in (cp.OPTIMAL, cp.OPTIMAL_INACCURATE):
-        res.notes.append("no solution reported")
+    if snap is None:
+        res.status = "solver-error"
+        res.notes.append("no settings rung produced a solution")
         return res
-    Xv = {b: (X[b].value + X[b].value.T) / 2 for b in X}
-    res.grams = {b: Xv[b].tolist() for b in Xv}
-    res.objective = float(sum(np.sum(M * Xv[b]) for b, M in model.C.items()))
-    viol = [abs(sum(np.sum(M * Xv[b]) for b, M in mats.items()) - rhs) for _, mats, rhs in model.A]
-    res.residual_max_abs = float(max(viol))
-    S2 = np.einsum("ij,ijk->k", Xv["X2"], product_tensor(basis, m))
-    a = model.qmap @ S2
-    res.q_w = a.tolist()
-    w0 = np.array([float(w_at_zero(k)) for k in range(len(a))])
-    res.q0 = float(w0 @ a)
-    res.tq0 = float((np.array([(-1.0) ** k for k in range(len(a))]) * w0) @ a)
-    res.R_physical = rho * res.q0 / res.tq0
-    for b in Xv:
-        ev = np.linalg.eigvalsh(Xv[b])
-        res.gram_min_eig[b], res.gram_max_eig[b] = float(ev[0]), float(ev[-1])
-    # KKT from the explicit affine data (CVXPY convention: L = <C,X> + sum y_k (A_k(X) - b_k) - sum <S,X>).
-    y = np.array([float(np.asarray(c.dual_value)) for c in eq])
-    worst = 0.0
-    for bi, b in enumerate(("X2", "X3", "X4")):
-        Rm = model.C.get(b, 0) - np.asarray(cons[bi].dual_value)
-        for k, (_, mats, _) in enumerate(model.A):
-            if b in mats:
-                Rm = Rm + y[k] * mats[b]
-        worst = max(worst, float(np.max(np.abs(Rm))))
-    res.kkt_stationarity_max_abs = worst
-    res.duality_gap = res.objective - float(-sum(y[k] * rhs for k, (_, _, rhs) in enumerate(model.A)))
-    if prob.status != cp.OPTIMAL:
+    name, status, Xraw, y, Sraw = snap
+    res.solver = f"CLARABEL {clarabel.__version__} (settings {name})"
+    res.status = str(status)
+    Xv = {b: (Xraw[b] + Xraw[b].T) / 2 for b in BLOCKS}
+    Sv = None if Sraw is None else {b: (Sraw[b] + Sraw[b].T) / 2 for b in BLOCKS}
+    res.grams = {b: Xv[b].tolist() for b in BLOCKS}
+    if Sv is not None:
+        res.duals = {"eq": list(y), "psd": {b: Sv[b].tolist() for b in BLOCKS}}
+    else:
+        res.notes.append("solver returned no dual values: KKT diagnostics not computed")
+    dg = witness_diagnostics(model, Xv, y, Sv)
+    for key, val in dg.items():
+        setattr(res, key, val)
+    if status != cp.OPTIMAL:
         res.notes.append("solver reported OPTIMAL_INACCURATE")
-    if res.q0 <= 1e-8:
-        res.notes.append("q(0) is not > 1e-8: not normalisable")
-    if res.R_physical < 1 - 1e-6:
+    if not (math.isfinite(res.q0) and res.q0 > Q0_MIN):
+        res.notes.append(f"q(0) is not > {Q0_MIN}: not normalisable")
+    if res.R_physical is not None and res.R_physical < 1 - 1e-6:
         res.notes.append("R < 1: impossible for an exactly admissible function (numerical artefact)")
     return res
 
 
+Q0_MIN = 1e-8
+
+
+def acceptance_thresholds(tol: float = 1e-7) -> dict:
+    """The numerical acceptance rule of `acceptable`, written out (recorded with every sweep)."""
+    return {"solver_status": "optimal", "residual_max_abs_max": tol, "abs_duality_gap_max": tol,
+            "kkt_stationarity_max_abs_max": tol, "gram_min_eig_min": -tol, "dual_min_eig_min": -tol,
+            "q0_min_exclusive": Q0_MIN, "all_diagnostics_present_and_finite": True}
+
+
+def _finite(v) -> bool:
+    return isinstance(v, (int, float, np.integer, np.floating)) and not isinstance(v, bool) and math.isfinite(v)
+
+
 def acceptable(r: S1Result, tol: float = 1e-7) -> bool:
-    """Numerical acceptance used by the sweep (not a certificate)."""
-    return (r.status == "optimal" and r.residual_max_abs is not None and r.residual_max_abs <= tol
-            and abs(r.duality_gap) <= tol and r.kkt_stationarity_max_abs <= 1e3 * tol
-            and min(r.gram_min_eig.values()) >= -tol and r.q0 > 1e-8)
+    """Numerical acceptance used by the sweep (not a certificate); see `acceptance_thresholds`.
+
+    Never raises on missing or non-finite diagnostics: such a candidate is simply not accepted.
+    """
+    if r.status != "optimal" or not _finite(tol) or tol <= 0:
+        return False
+    scalars = (r.objective, r.residual_max_abs, r.duality_gap, r.kkt_stationarity_max_abs, r.q0, r.tq0)
+    if not all(_finite(v) for v in scalars):
+        return False
+    for eigs in (r.gram_min_eig, r.dual_min_eig):
+        if not isinstance(eigs, dict) or set(eigs) != set(BLOCKS) or not all(_finite(v) for v in eigs.values()):
+            return False
+    return (r.residual_max_abs <= tol and abs(r.duality_gap) <= tol and r.kkt_stationarity_max_abs <= tol
+            and min(r.gram_min_eig.values()) >= -tol and min(r.dual_min_eig.values()) >= -tol
+            and r.q0 > Q0_MIN)
+
+
+# =========================================================================== saved witnesses and solver-free replay
+
+WITNESS_RECORDED_KEYS = ("objective", "residual_max_abs", "kkt_stationarity_max_abs", "duality_gap", "q0", "tq0",
+                         "R_physical", "complementarity", "gram_min_eig", "dual_min_eig")
+REPLAY_AGREEMENT_ABS = 1e-12      # recomputed versus recorded diagnostics (same affine data, same floats)
+
+
+def witness_record(r: S1Result, tol: float) -> dict:
+    """Primal and dual witness of a solve, with the diagnostics recorded at solve time (JSON-ready)."""
+    if not r.grams or not r.duals:
+        raise ValueError("result has no primal/dual witness")
+    return {"m": r.m, "rho": r.rho, "basis": r.basis, "solver": r.solver, "status": r.status, "tol": tol,
+            "X": r.grams, "eq_duals": r.duals["eq"], "psd_duals": r.duals["psd"],
+            "recorded": {**{k: getattr(r, k) for k in WITNESS_RECORDED_KEYS}, "accepted": acceptable(r, tol)}}
+
+
+def replay_witness(w: dict) -> dict:
+    """Re-check a saved witness without any solver: rebuild the affine data from (m, rho, basis), recompute
+    every diagnostic with numpy, re-apply the acceptance thresholds and compare with the recorded values.
+
+    Returns {"ok": bool, "checks": {name: bool}, "errors": [...], "recomputed": {...}}. Malformed or
+    non-finite input gives ok = False (never an exception). Numerical check only, not a certificate.
+    """
+    checks, errors = {}, []
+
+    def fail(msg):
+        errors.append(msg)
+        return {"ok": False, "checks": checks, "errors": errors, "recomputed": None}
+
+    try:
+        m, rho, basis, tol = w["m"], w["rho"], w["basis"], w["tol"]
+        model = build_model(m, rho, basis)
+        if not _finite(tol) or tol <= 0:
+            return fail("tol must be finite and > 0")
+        X, S, y = {}, {}, np.asarray(w["eq_duals"], dtype=float)
+        for b in BLOCKS:
+            X[b] = np.asarray(w["X"][b], dtype=float)
+            S[b] = np.asarray(w["psd_duals"][b], dtype=float)
+        rec = w["recorded"]
+    except (KeyError, TypeError, ValueError) as exc:
+        return fail(f"malformed witness: {type(exc).__name__}: {exc}")
+    n = m + 1
+    checks["shapes"] = (y.shape == (len(model.A),)
+                        and all(X[b].shape == (n, n) and S[b].shape == (n, n) for b in BLOCKS))
+    if not checks["shapes"]:
+        return fail("wrong array shapes")
+    checks["finite"] = bool(np.all(np.isfinite(y)) and all(np.all(np.isfinite(X[b])) and np.all(np.isfinite(S[b]))
+                                                            for b in BLOCKS))
+    if not checks["finite"]:
+        return fail("non-finite entries")
+    checks["symmetric"] = all(np.array_equal(X[b], X[b].T) and np.array_equal(S[b], S[b].T) for b in BLOCKS)
+    dg = witness_diagnostics(model, X, y, S)
+    dg.pop("q_w")
+    checks["residual"] = dg["residual_max_abs"] <= tol
+    checks["duality_gap"] = abs(dg["duality_gap"]) <= tol
+    checks["kkt_stationarity"] = dg["kkt_stationarity_max_abs"] <= tol
+    checks["primal_psd"] = min(dg["gram_min_eig"].values()) >= -tol
+    checks["dual_psd"] = min(dg["dual_min_eig"].values()) >= -tol
+    checks["q0_positive"] = dg["q0"] > Q0_MIN
+    agree = True
+    for key in WITNESS_RECORDED_KEYS:
+        a, b = dg[key], rec.get(key) if isinstance(rec, dict) else None
+        if isinstance(a, dict):
+            ok = isinstance(b, dict) and set(b) == set(a) and all(
+                _finite(b[k]) and abs(a[k] - b[k]) <= REPLAY_AGREEMENT_ABS for k in a)
+        else:
+            ok = _finite(a) and _finite(b) and abs(a - b) <= REPLAY_AGREEMENT_ABS
+        if not ok:
+            agree = False
+            errors.append(f"recomputed {key} disagrees with the recorded value")
+    checks["agrees_with_recorded"] = agree
+    accepted_now = all(checks[k] for k in ("residual", "duality_gap", "kkt_stationarity", "primal_psd", "dual_psd",
+                                           "q0_positive"))
+    checks["recorded_acceptance_flag"] = isinstance(rec, dict) and rec.get("accepted") is accepted_now
+    for k, v in checks.items():
+        if not v and not any(k in e for e in errors):
+            errors.append(f"check failed: {k}")
+    return {"ok": all(checks.values()), "checks": checks, "errors": errors, "recomputed": dg}
 
 
 # =========================================================================== independent re-evaluation (B1a)
@@ -334,11 +486,146 @@ def independent_check(r: S1Result, dps: int = 60, fourier_minimum: bool = True) 
         out["tq0_b1a"] = float(tq0)
         out["q_at_rho_sq"] = float(cf.poly_eval_mp(p, rho))       # should be ~0: built-in sign change
     if fourier_minimum:
+        # Unweighted polynomial (Tq)(xi^2) over xi >= 0 (not fhat = (Tq)(xi^2) exp(-pi xi^2)).
         mn = cf.even_poly_minimum(tp, dps)
-        out["fourier_min_value"] = None if mn["min_value"] is None else float(mn["min_value"])
-        out["fourier_min_u"] = None if mn["argmin_u"] is None else float(mn["argmin_u"])
-        out["fourier_unbounded_below"] = mn["unbounded_below"]
+        out["tq_unweighted_min_value"] = None if mn["min_value"] is None else float(mn["min_value"])
+        out["tq_unweighted_argmin_xi"] = None if mn["argmin_u"] is None else float(mn["argmin_u"])
+        out["tq_unbounded_below"] = mn["unbounded_below"]
     return out
+
+
+# =========================================================================== Fourier side: two different minima
+
+def _fujiwara_bound(a: list) -> mpmath.mpf:
+    """Fujiwara's bound on the moduli of all complex roots of sum_k a_k t^k (a ascending, a[-1] != 0)."""
+    n = len(a) - 1
+    if n <= 0:
+        return mpmath.mpf(0)
+    an = abs(a[-1])
+    terms = [(abs(a[n - k]) / an) ** (mpmath.mpf(1) / k) for k in range(1, n)]
+    terms.append((abs(a[0]) / (2 * an)) ** (mpmath.mpf(1) / n))
+    return 2 * max(terms)
+
+
+def _positive_real_roots(a: list, dps: int) -> tuple[list, bool, float]:
+    """Positive real roots of sum_k a_k t^k (ascending) via mpmath.polyroots; (roots, converged, max |residual|).
+
+    The residual of each accepted root is relative to sum_k |a_k| t^k.
+    """
+    a = list(a)
+    while len(a) > 1 and a[-1] == 0:
+        a.pop()
+    if len(a) < 2:
+        return [], True, 0.0
+    try:
+        roots = mpmath.polyroots(a, maxsteps=2000, extraprec=4 * dps, asc=True)
+    except mpmath.libmp.NoConvergence:
+        return [], False, float("inf")
+    thr = mpmath.mpf(10) ** (-(dps // 4))
+    out, worst = [], mpmath.mpf(0)
+    for z in roots:
+        z = mpmath.mpc(z)
+        if abs(z.imag) <= thr * (1 + abs(z)) and z.real > 0:
+            t = z.real
+            scale = mpmath.fsum(abs(c) * t ** k for k, c in enumerate(a))
+            worst = max(worst, abs(mpmath.polyval(a, t, asc=True)) / scale)
+            out.append(t)
+    return sorted(out), True, float(worst)
+
+
+def fourier_side_minima(P: list, dps: int = 200, grid_points: int = 20001) -> dict:
+    """Two distinct minima of the Fourier side of a candidate, over the half-line t = xi^2 >= 0.
+
+    P is (Tq)(t) as ascending coefficients in t, so fhat(xi) = P(xi^2) exp(-pi xi^2). Reported separately:
+
+    * unweighted: min of P(t) on t >= 0. Candidates t = 0 and the positive roots of P'(t) = 0; tail: P -> +inf
+      if the leading coefficient is positive, otherwise P is unbounded below (no minimum).
+    * weighted: min of g(t) = P(t) exp(-pi t) on t >= 0. Candidates t = 0 and the positive roots of
+      P'(t) - pi P(t) = 0 (g' = (P' - pi P) exp(-pi t)); tail: g -> 0, from the side of the sign of the leading
+      coefficient. The infimum is min(candidate values, 0); if every candidate value is positive the
+      infimum 0 is approached in the tail and not attained.
+
+    Reliability (numerical, not rigorous): polyroots must converge, accepted real roots must have small
+    relative residuals, and a dense grid on [0, B] (B = Fujiwara bound of both stationary polynomials, so it
+    contains every stationary point) must not find a value below the stationary-point minimum. If any of
+    these fails, `reliable` is False and no global minimum is claimed. This is a numerical diagnostic of the
+    float candidate, never a certificate of Fourier non-negativity.
+    """
+    with mpmath.workdps(dps):
+        c = [mpmath.mpf(x) for x in P]
+        while len(c) > 1 and c[-1] == 0:
+            c.pop()
+        n = len(c) - 1
+        pi = mpmath.pi
+        lead = c[-1]
+        dP = [k * c[k] for k in range(1, n + 1)]
+        G = [(k + 1) * c[k + 1] - pi * c[k] for k in range(n)] + [-pi * c[n]]   # P' - pi P
+        r_dP, conv_dP, res_dP = _positive_real_roots(dP, dps)
+        r_G, conv_G, res_G = _positive_real_roots(G, dps)
+
+        def Pv(t):
+            return mpmath.polyval(c, t, asc=True)
+
+        def gv(t):
+            return Pv(t) * mpmath.exp(-pi * t)
+
+        limitations = []
+        # unweighted
+        if n >= 1 and lead < 0:
+            unw = {"min_value": None, "argmin_t": None, "argmin_xi": None, "unbounded_below": True,
+                   "tail": "-inf (negative leading coefficient)"}
+        else:
+            cand = [mpmath.mpf(0)] + r_dP
+            v, t = min((Pv(t), t) for t in cand)
+            unw = {"min_value": float(v), "argmin_t": float(t), "argmin_xi": float(mpmath.sqrt(t)),
+                   "unbounded_below": False, "tail": "+inf" if n >= 1 else "constant"}
+        unw.update({"value_at_t0": float(c[0]), "leading_coefficient": float(lead),
+                    "n_positive_stationary_points": len(r_dP)})
+        # weighted
+        cand = [mpmath.mpf(0)] + r_G
+        v, t = min((gv(t), t) for t in cand)
+        tail_sign = "+" if lead > 0 else ("-" if lead < 0 else "0")
+        wtd = {"min_value_attained": float(v), "argmin_t": float(t), "argmin_xi": float(mpmath.sqrt(t)),
+               "infimum": float(min(v, 0)), "infimum_attained": bool(v <= 0),
+               "tail": f"-> 0 from the {tail_sign} side (leading coefficient sign)",
+               "value_at_t0": float(c[0]), "n_positive_stationary_points": len(r_G)}
+        # cross-check on a dense grid covering every stationary point
+        B = max(_fujiwara_bound(dP) if len(dP) > 1 else mpmath.mpf(0),
+                _fujiwara_bound(G) if len(G) > 1 else mpmath.mpf(0), mpmath.mpf(1))
+        xi_max = mpmath.sqrt(B * mpmath.mpf("1.05"))
+        g_min_grid, p_min_grid = mpmath.inf, mpmath.inf
+        for k in range(grid_points):
+            t = (xi_max * k / (grid_points - 1)) ** 2
+            pv = Pv(t)
+            p_min_grid = min(p_min_grid, pv)
+            g_min_grid = min(g_min_grid, pv * mpmath.exp(-pi * t))
+        slack_w = mpmath.mpf(10) ** (-(dps // 2)) + mpmath.mpf("1e-9") * abs(wtd["min_value_attained"])
+        grid_ok_w = g_min_grid >= wtd["min_value_attained"] - slack_w
+        if unw["unbounded_below"]:
+            grid_ok_u = True
+        else:
+            slack_u = mpmath.mpf(10) ** (-(dps // 2)) + mpmath.mpf("1e-9") * abs(unw["min_value"])
+            grid_ok_u = p_min_grid >= unw["min_value"] - slack_u
+        res_ok = res_dP <= 1e-20 and res_G <= 1e-20
+        if not (conv_dP and conv_G):
+            limitations.append("polyroots did not converge: stationary points incomplete")
+        if not res_ok:
+            limitations.append("a real root has a large relative residual")
+        if not (grid_ok_u and grid_ok_w):
+            limitations.append("grid found a value below the stationary-point minimum: a stationary point was missed")
+        reliable = conv_dP and conv_G and res_ok and grid_ok_u and grid_ok_w
+        if not reliable:
+            limitations.append("global minimum NOT established")
+        return {"variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+                "unweighted_P": unw, "weighted_P_exp_minus_pi_t": wtd,
+                "stationary_point_bound_t": float(B),
+                "grid_cross_check": {"xi_max": float(xi_max), "points": grid_points,
+                                     "min_P_on_grid": float(p_min_grid), "min_weighted_on_grid": float(g_min_grid),
+                                     "consistent_unweighted": bool(grid_ok_u), "consistent_weighted": bool(grid_ok_w)},
+                "root_residual_max_rel": {"P_prime": res_dP, "P_prime_minus_pi_P": res_G},
+                "polyroots_converged": bool(conv_dP and conv_G), "reliable": bool(reliable),
+                "limitations": limitations, "dps": dps,
+                "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"}
 
 
 def golden_minimise(fun, lo: float, hi: float, iters: int = 14):
@@ -361,15 +648,18 @@ def golden_minimise(fun, lo: float, hi: float, iters: int = 14):
     return min(evals, key=lambda t: t[1]), evals
 
 
-def highprec_check(r: S1Result, dps: int = 200, grid: int = 4001, xi_max: float = 4.0) -> dict:
+def highprec_check(r: S1Result, dps: int = 200, grid: int = 4001, xi_max: float = 4.0,
+                   fourier_grid_points: int = 20001) -> dict:
     """Re-evaluate a candidate from its Gram matrices alone, independently of the w-basis linear maps.
 
     The binary floats of X2, X3, X4 are taken as exact data. In mpmath at `dps` digits:
     s_b(t) = v(t)^T X_b v(t) with v_k(t) = L_k^(-1/2)(sigma t) expanded in monomials of t,
     q = (rho^2 - t) s_2, Tq by B1a's monomial formula T(t^k) = (k!/pi^k) L_k^(-1/2)(pi xi^2), and
     E = s_3 + t s_4 - Tq (the coefficient-matching defect). Reports max |E|, (Tq)(0), q(0), R, Z by
-    Gaussian moments, and the minimum of Tq over a grid in xi refined by golden-section search
-    (the Fourier side of this float candidate; exploratory, not a certificate).
+    Gaussian moments, and `fourier_side_minima` of Tq: the unweighted minimum of Tq(t) and the weighted
+    minimum of Tq(t) exp(-pi t) over the half-line t = xi^2 >= 0, kept separate (the Fourier side of this
+    float candidate; a numerical diagnostic, not a certificate). The matching defect is sampled on a grid
+    xi in [0, xi_max].
     """
     m = r.m
     with mpmath.workdps(dps):
@@ -413,33 +703,14 @@ def highprec_check(r: S1Result, dps: int = 200, grid: int = 4001, xi_max: float 
         E = padd(rhs, [-x for x in tq])
         integral = mpmath.fsum(c * cf.gaussian_moment(k, rho) for k, c in enumerate(q))
         z = (q[0] * rho + 2 * integral / rho) / tq[0]
-        P = lambda u: mpmath.polyval(tq, u, asc=True)  # noqa: E731
         Ef = lambda u: mpmath.polyval(E, u, asc=True)  # noqa: E731
         xs = [mpmath.mpf(xi_max) * k / (grid - 1) for k in range(grid)]
-        damp = [mpmath.exp(-pi * x * x) for x in xs]
-        fh = [P(x * x) * dmp for x, dmp in zip(xs, damp, strict=True)]          # fhat(xi) of the candidate
-        defect_fn = max(abs(Ef(x * x)) * dmp for x, dmp in zip(xs, damp, strict=True))
-        vals = fh
-        mins = []
-        g = (mpmath.sqrt(5) - 1) / 2
-        for i in range(1, grid - 1):
-            if vals[i] <= vals[i - 1] and vals[i] <= vals[i + 1]:
-                a, b = xs[i - 1], xs[i + 1]
-                F = lambda x: P(x * x) * mpmath.exp(-pi * x * x)  # noqa: E731
-                for _ in range(120):
-                    c1, c2 = b - g * (b - a), a + g * (b - a)
-                    if F(c1) < F(c2):
-                        b = c2
-                    else:
-                        a = c1
-                x0 = (a + b) / 2
-                mins.append((float(x0), float(P(x0 * x0) * mpmath.exp(-pi * x0 * x0)), float(P(x0 * x0))))
-        mins.sort(key=lambda t: t[1])
-        return {"dps": dps, "matching_defect_fn_max": float(defect_fn),
+        defect_fn = max(abs(Ef(x * x)) * mpmath.exp(-pi * x * x) for x in xs)
+        fourier = fourier_side_minima(tq, dps, fourier_grid_points)
+        return {"dps": dps, "matching_defect_fn_max": float(defect_fn), "matching_defect_xi_max": xi_max,
                 "tq0": float(tq[0]), "q0": float(q[0]), "R_physical": float(rho * q[0] / tq[0]),
                 "z_highprec": float(z), "z_vs_solver_abs_diff": float(abs(z - mpmath.mpf(r.objective))),
-                "fhat_local_minima_lowest3": mins[:3],
-                "fhat_min_on_grid": float(min(fh)),
-                "note": ("xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the "
-                         "float candidate itself, so negative values measure its Fourier-side infeasibility; "
-                         "matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)")}
+                "fourier": fourier,
+                "note": ("Tq of the float candidate itself, so negative values measure its Fourier-side "
+                         "infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of "
+                         "|E(xi^2)| exp(-pi xi^2)")}
