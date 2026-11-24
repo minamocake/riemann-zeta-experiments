@@ -52,11 +52,14 @@ rejected solves appear only in `rho_evaluations` and `lowest_rejected`.
 * Per run: residuals, KKT stationarity, duality gap, complementarity, primal and dual Gram eigenvalues, q(0), R.
   At the best accepted rho, `highprec_check` re-evaluates the candidate from its Gram matrices alone with B1a's
   monomial transform at 200 digits (matching defect, Z by moments, Fourier-side minima).
-* Solver-free replay (`replay_s1.py --fourier`, run at 6a02741 with cvxpy and clarabel imports blocked): for
-  m = 1, 10, 30 every check passes (witness SHA-256, shapes, finiteness, symmetry, acceptance re-applied, agreement
-  with the recorded diagnostics to 1e-12, same point as `best_accepted`, Fourier minima reproduced). The tests
-  check that corrupting a primal entry, the symmetry, an equality dual, a dual PSD block, a recorded diagnostic,
-  rho, the acceptance flag, the array shapes or the witness file makes the replay fail.
+* Solver-free replay (`replay_s1.py --fourier`, cvxpy and clarabel imports blocked): for m = 1, 10, 30 every
+  check passes (witness SHA-256, shapes, finiteness, symmetry, acceptance re-applied, agreement with the recorded
+  diagnostics to 1e-12, witness status optimal and tolerance equal to the sweep's acceptance rule, same point as
+  `best_accepted` including status and solver, saved `q_w` equal to the coefficients recomputed from the witness,
+  Fourier minima including the weighted infimum reproduced). The tests check that corrupting a primal entry, the
+  symmetry, an equality dual, a dual PSD block, a recorded diagnostic, rho, the acceptance flag, the array shapes,
+  the witness file, the saved `q_w`, a status, the tolerance or acceptance rule, or the Fourier infimum makes the
+  replay fail.
 
 ## Results (formulation B, paper basis; rho searched in a bounded bracket)
 
