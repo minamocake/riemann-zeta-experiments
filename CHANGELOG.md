@@ -2,6 +2,15 @@
 
 ## 0.1.0 (unreleased)
 
+### Research B2-full S1: Laguerre-basis formulation B
+
+* New module `cgdl_laguerre`, tests `test_cgdl_laguerre.py`, experiment `experiments/cgdl_reproduction/b2_full/`
+  (degree sweep up to m = 30 accepted, published-witness oracle). Numerical candidates only; no registry change.
+* S1 merge blockers (independent reviews): explicit, finite-safe numerical acceptance with dual PSD checks;
+  strict JSON with rejected solves never reported as candidates (m = 40); benchmark-floor test removed; primal and
+  dual witnesses with solver-free replay and corruption tests (`replay_s1.py`); pinned SHA-256 for the published
+  witness; unweighted and Gaussian-weighted Fourier-side minima reported separately over the half-line.
+
 ### Research B2-mini: first small SDP
 
 * New module `cgdl_sdp` (formulations A and B, deg_q_max = 2m + 1), tests `test_cgdl_sdp.py`, experiment
