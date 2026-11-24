@@ -7,9 +7,13 @@ For every witness in the witness file named by the sweep (default results/s1_swe
 * `replay_witness` rebuilds the affine data from (m, rho, basis), recomputes residuals, objective, q(0), (Tq)(0),
   R, primal and dual Gram eigenvalues, KKT stationarity, duality gap and complementarity with numpy, re-applies
   the acceptance thresholds and compares with the values recorded at solve time;
-* the sweep's `best_accepted` for that degree must be the same point (rho, objective, diagnostics).
-With --fourier, `highprec_check` is re-run from the saved Gram matrices and its Fourier-side minima are
-compared with the sweep. Prints JSON; exit status 0 only if every check passes. Numerical checks only.
+* the witness status must be "optimal", its tolerance must equal the sweep's acceptance tolerance, and the
+  sweep's acceptance rule must equal `acceptance_thresholds` at that tolerance;
+* the sweep's `best_accepted` for that degree must be the same point (m, rho, basis, status, solver,
+  diagnostics), and its saved q coefficients `q_w` must equal those recomputed from the witness;
+With --fourier, `highprec_check` is re-run from the saved Gram matrices and its Fourier-side minima (values,
+locations, weighted infimum, attainment, unboundedness, reliability) are compared with the sweep.
+Prints JSON; exit status 0 only if every check passes. Numerical checks only.
 """
 import hashlib
 import json
@@ -41,13 +45,24 @@ def replay(sweep_path: Path, fourier: bool = False) -> dict:
     witnesses = json.loads(raw.decode("utf-8"), parse_constant=_reject_constant)["witnesses"]
     report["witness_degrees_match"] = [w["m"] for w in witnesses] == wf["degrees"]
     runs = {e["m"]: e for e in sweep["runs"]}
+    acceptance = sweep.get("acceptance")
     for w in witnesses:
         rp = L.replay_witness(w)
         entry = {"m": w["m"], "rho": w["rho"], "replay_ok": rp["ok"], "checks": rp["checks"], "errors": rp["errors"]}
+        tol = w.get("tol")
+        entry["status_and_tolerance_ok"] = bool(
+            w.get("status") == "optimal" and isinstance(acceptance, dict)
+            and tol == acceptance.get("residual_max_abs_max") and acceptance == L.acceptance_thresholds(tol))
         best = runs.get(w["m"], {}).get("best_accepted")
         entry["matches_sweep_best_accepted"] = bool(
-            best is not None and best["rho"] == w["rho"]
-            and all(best[k] == w["recorded"][k] for k in L.WITNESS_RECORDED_KEYS))
+            best is not None and all(best.get(k) == w.get(k) for k in ("m", "rho", "basis", "status", "solver"))
+            and all(best.get(k) == w["recorded"].get(k) for k in L.WITNESS_RECORDED_KEYS))
+        q_new = rp["recomputed"]["q_w"] if rp["ok"] else None
+        q_old = best.get("q_w") if best is not None else None
+        entry["q_w_matches_sweep"] = bool(
+            q_new is not None and isinstance(q_old, list) and len(q_old) == len(q_new)
+            and all(isinstance(b, (int, float)) and abs(a - b) <= L.REPLAY_AGREEMENT_ABS
+                    for a, b in zip(q_new, q_old, strict=True)))
         if rp["ok"]:
             rc = rp["recomputed"]
             entry["recomputed"] = {k: rc[k] for k in ("objective", "residual_max_abs", "kkt_stationarity_max_abs",
@@ -59,13 +74,15 @@ def replay(sweep_path: Path, fourier: bool = False) -> dict:
                            objective=w["recorded"]["objective"], grams=w["X"])
             f_new = L.highprec_check(r)["fourier"]
             f_old = runs[w["m"]]["highprec_check"]["fourier"]
-            keys = [("unweighted_P", "min_value"), ("unweighted_P", "argmin_t"),
-                    ("weighted_P_exp_minus_pi_t", "min_value_attained"), ("weighted_P_exp_minus_pi_t", "argmin_t")]
-            entry["fourier_reproduced"] = f_new["reliable"] == f_old["reliable"] and all(
-                f_new[a][b] == f_old[a][b] for a, b in keys)
+            keys = [("unweighted_P", "min_value"), ("unweighted_P", "argmin_t"), ("unweighted_P", "unbounded_below"),
+                    ("weighted_P_exp_minus_pi_t", "min_value_attained"), ("weighted_P_exp_minus_pi_t", "argmin_t"),
+                    ("weighted_P_exp_minus_pi_t", "infimum"), ("weighted_P_exp_minus_pi_t", "infimum_attained")]
+            entry["fourier_reproduced"] = f_new["reliable"] == f_old.get("reliable") and all(
+                f_new[a][b] == f_old.get(a, {}).get(b) for a, b in keys)
         report["witnesses"].append(entry)
     report["ok"] = (report["witness_sha256_matches"] and report["witness_degrees_match"] and bool(witnesses)
-                    and all(e["replay_ok"] and e["matches_sweep_best_accepted"] and e.get("fourier_reproduced", True)
+                    and all(e["replay_ok"] and e["status_and_tolerance_ok"] and e["matches_sweep_best_accepted"]
+                            and e["q_w_matches_sweep"] and e.get("fourier_reproduced", True)
                             for e in report["witnesses"]))
     return report
 

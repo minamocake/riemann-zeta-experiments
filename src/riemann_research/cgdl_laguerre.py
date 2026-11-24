@@ -421,8 +421,7 @@ def replay_witness(w: dict) -> dict:
     if not checks["finite"]:
         return fail("non-finite entries")
     checks["symmetric"] = all(np.array_equal(X[b], X[b].T) and np.array_equal(S[b], S[b].T) for b in BLOCKS)
-    dg = witness_diagnostics(model, X, y, S)
-    dg.pop("q_w")
+    dg = witness_diagnostics(model, X, y, S)       # dg["q_w"]: recomputed q coefficients, kept for comparison
     checks["residual"] = dg["residual_max_abs"] <= tol
     checks["duality_gap"] = abs(dg["duality_gap"]) <= tol
     checks["kkt_stationarity"] = dg["kkt_stationarity_max_abs"] <= tol

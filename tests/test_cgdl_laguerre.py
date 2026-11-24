@@ -187,7 +187,8 @@ def test_replay_script_is_solver_free_and_passes():
     assert p.returncode == 0, p.stdout[-2000:] + p.stderr[-2000:]
     rep = json.loads(p.stdout)
     assert rep["ok"] and rep["witness_sha256_matches"] and len(rep["witnesses"]) >= 2
-    assert all(w["replay_ok"] and w["matches_sweep_best_accepted"] for w in rep["witnesses"])
+    assert all(w["replay_ok"] and w["matches_sweep_best_accepted"] and w["q_w_matches_sweep"]
+               and w["status_and_tolerance_ok"] for w in rep["witnesses"])
 
 
 @needs_witnesses
@@ -229,13 +230,96 @@ def test_replay_detects_witness_file_tampering(tmp_path):
     (tmp_path / "s1_sweep.json").write_text(json.dumps(d), encoding="utf-8")
     raw = WITNESSES.read_text(encoding="utf-8")
     (tmp_path / d["witness_file"]["path"]).write_text(raw.replace('"m": 1,', '"m": 1 ,', 1), encoding="utf-8")
-    sys.path.insert(0, str(B2FULL))
-    try:
-        import replay_s1
-    finally:
-        sys.path.pop(0)
-    rep = replay_s1.replay(tmp_path / "s1_sweep.json")
+    rep = _replay_module().replay(tmp_path / "s1_sweep.json")
     assert not rep["witness_sha256_matches"] and not rep["ok"]
+
+
+def _replay_module():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("replay_s1", B2FULL / "replay_s1.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _replay_pair(tmp_path, degrees=None, mutate_sweep=None, mutate_witnesses=None, fourier=False):
+    """Copy the saved sweep and witness file to tmp_path (optionally only some witness degrees), apply the
+    mutations, re-record the witness SHA-256 and degrees so that only the targeted field differs, and replay."""
+    import hashlib
+    sweep, wdoc = load_strict(SWEEP), load_strict(WITNESSES)
+    if degrees is not None:
+        wdoc["witnesses"] = [w for w in wdoc["witnesses"] if w["m"] in degrees]
+    if mutate_witnesses:
+        mutate_witnesses(wdoc["witnesses"])
+    raw = (json.dumps(wdoc, indent=1, allow_nan=False) + "\n").encode("utf-8")
+    (tmp_path / sweep["witness_file"]["path"]).write_bytes(raw)
+    sweep["witness_file"]["sha256"] = hashlib.sha256(raw).hexdigest()
+    sweep["witness_file"]["degrees"] = [w["m"] for w in wdoc["witnesses"]]
+    if mutate_sweep:
+        mutate_sweep(sweep, {e["m"]: e for e in sweep["runs"]})
+    (tmp_path / "s1_sweep.json").write_text(json.dumps(sweep, allow_nan=False), encoding="utf-8")
+    return _replay_module().replay(tmp_path / "s1_sweep.json", fourier)
+
+
+@needs_witnesses
+def test_replay_compares_saved_q_w_status_and_tolerance(tmp_path):
+    """Corruptions of the sweep's saved q coefficients, status or acceptance tolerance (or of the witness status
+    or tolerance) must fail the replay; the unmodified pair passes."""
+    assert _replay_pair(tmp_path)["ok"]
+
+    def scale_first(s, runs):
+        runs[1]["best_accepted"]["q_w"][0] *= 1.01
+
+    rep = _replay_pair(tmp_path, mutate_sweep=scale_first)
+    e = next(x for x in rep["witnesses"] if x["m"] == 1)
+    assert not rep["ok"] and not e["q_w_matches_sweep"]
+    assert e["replay_ok"] and e["matches_sweep_best_accepted"] and e["status_and_tolerance_ok"]   # isolated
+    assert not _replay_pair(tmp_path, mutate_sweep=lambda s, r: r[1]["best_accepted"]["q_w"].pop())["ok"]
+    rep = _replay_pair(tmp_path, mutate_sweep=lambda s, r: r[10]["best_accepted"]["q_w"].__setitem__(3, None))
+    assert not rep["ok"]
+
+    def sweep_status(s, runs):
+        runs[30]["best_accepted"]["status"] = "optimal_inaccurate"
+
+    rep = _replay_pair(tmp_path, mutate_sweep=sweep_status)
+    assert not rep["ok"] and not next(x for x in rep["witnesses"] if x["m"] == 30)["matches_sweep_best_accepted"]
+
+    def witness_status(ws):
+        ws[0]["status"] = "optimal_inaccurate"
+
+    rep = _replay_pair(tmp_path, mutate_witnesses=witness_status)
+    assert not rep["ok"] and not rep["witnesses"][0]["status_and_tolerance_ok"]
+
+    def witness_tol(ws):
+        ws[0]["tol"] = 1e-7
+
+    rep = _replay_pair(tmp_path, mutate_witnesses=witness_tol)
+    assert not rep["ok"] and not rep["witnesses"][0]["status_and_tolerance_ok"]
+
+    def sweep_kkt_threshold(s, runs):
+        s["acceptance"]["kkt_stationarity_max_abs_max"] = 1e-3
+
+    rep = _replay_pair(tmp_path, mutate_sweep=sweep_kkt_threshold)
+    assert not rep["ok"] and not any(x["status_and_tolerance_ok"] for x in rep["witnesses"])
+
+
+@needs_witnesses
+def test_replay_compares_fourier_infimum(tmp_path):
+    """With Fourier replay, a changed weighted infimum or attainment flag in the sweep must fail (m = 1 only)."""
+    assert _replay_pair(tmp_path, degrees=(1,), fourier=True)["ok"]
+    key = "weighted_P_exp_minus_pi_t"
+
+    def infimum(s, runs):
+        runs[1]["highprec_check"]["fourier"][key]["infimum"] = -1e-12
+
+    def attained(s, runs):
+        f = runs[1]["highprec_check"]["fourier"][key]
+        f["infimum_attained"] = not f["infimum_attained"]
+
+    for mut in (infimum, attained):
+        rep = _replay_pair(tmp_path, degrees=(1,), mutate_sweep=mut, fourier=True)
+        assert not rep["ok"] and not rep["witnesses"][0]["fourier_reproduced"]
+        assert rep["witnesses"][0]["q_w_matches_sweep"] and rep["witnesses"][0]["replay_ok"]       # isolated
 
 
 @requires_cvxpy
