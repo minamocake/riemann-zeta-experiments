@@ -7,7 +7,8 @@
   "cvxpy": "1.9.3",
   "clarabel": "0.11.1",
   "mpmath": "1.4.1",
-  "commit": "56e8acc495d975ec784db71e7a55be82378246c5"
+  "commit": "af6336d0f1d2b28f5d68eb1c0fb3f12d503d311d",
+  "worktree_clean": true
  },
  "settings_ladder": [
   [
@@ -35,6 +36,16 @@
    }
   ]
  ],
+ "acceptance": {
+  "solver_status": "optimal",
+  "residual_max_abs_max": 1e-06,
+  "abs_duality_gap_max": 1e-06,
+  "kkt_stationarity_max_abs_max": 1e-06,
+  "gram_min_eig_min": -1e-06,
+  "dual_min_eig_min": -1e-06,
+  "q0_min_exclusive": 1e-08,
+  "all_diagnostics_present_and_finite": true
+ },
  "published_reference_Z": 1.3207644973215569,
  "runs": [
   {
@@ -200,7 +211,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 1,
     "rho": 1.066444521870531,
     "basis": "paper",
@@ -226,34 +239,73 @@
      "X3": 0.807705976956332,
      "X4": 2.2693756179950184
     },
+    "dual_min_eig": {
+     "X2": 1.6777003222763094e-11,
+     "X3": 5.190223251183568e-12,
+     "X4": 1.0993983501350613e-12
+    },
     "residual_max_abs": 5.773159728050814e-15,
     "kkt_stationarity_max_abs": 1.6149748205407377e-11,
     "duality_gap": -6.462164137133186e-12,
-    "seconds": 0.01131439208984375,
+    "complementarity": 6.481684743224835e-11,
+    "seconds": 0.011428356170654297,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 8.768054641291701e-16,
+    "matching_defect_xi_max": 4.0,
     "tq0": 1.0000000000000053,
     "q0": 0.945235847006956,
     "R_physical": 1.008041590916214,
     "z_highprec": 1.3267511514108692,
     "z_vs_solver_abs_diff": 7.14450369217478e-15,
-    "fhat_local_minima_lowest3": [
-     [
-      0.9950508798306839,
-      1.1242024289171846e-11,
-      2.5220248811438725e-10
-     ]
-    ],
-    "fhat_min_on_grid": 1.5619944877976605e-18,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": 2.5220248807370475e-10,
+      "argmin_t": 0.9901262533491255,
+      "argmin_xi": 0.9950508797790822,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 1.0000000000000053,
+      "leading_coefficient": 2.8659738790755513,
+      "n_positive_stationary_points": 2
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": 1.1242024289171846e-11,
+      "argmin_t": 0.990126253451818,
+      "argmin_xi": 0.9950508798306839,
+      "infimum": 0.0,
+      "infimum_attained": false,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 1.0000000000000053,
+      "n_positive_stationary_points": 2
+     },
+     "stationary_point_bound_t": 5.158533792472849,
+     "grid_cross_check": {
+      "xi_max": 2.3273290446553734,
+      "points": 20001,
+      "min_P_on_grid": 2.7991303998809e-10,
+      "min_weighted_on_grid": 1.2477338010200471e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 4.726821600735908e-202,
+      "P_prime_minus_pi_P": 2.0886700699168183e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 1,
     "rho": 1.0,
@@ -280,15 +332,22 @@
      "X3": 0.8180951728506719,
      "X4": 2.578144043250769
     },
+    "dual_min_eig": {
+     "X2": 7.464764410898515e-11,
+     "X3": 2.944607752075612e-11,
+     "X4": 5.096090216483162e-12
+    },
     "residual_max_abs": 1.2656542480726785e-14,
     "kkt_stationarity_max_abs": 9.020206803711517e-11,
     "duality_gap": -2.4341417770301632e-11,
-    "seconds": 0.011243104934692383,
+    "complementarity": 4.2041290387077714e-10,
+    "seconds": 0.011667966842651367,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "seconds": 0.8
+   "notes": [],
+   "seconds": 1.4
   },
   {
    "m": 2,
@@ -453,7 +512,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 2,
     "rho": 0.902091966753428,
     "basis": "paper",
@@ -481,34 +542,73 @@
      "X3": 0.9238709254257671,
      "X4": 1.6939315979051848
     },
+    "dual_min_eig": {
+     "X2": 3.909463995156434e-12,
+     "X3": 1.348134369829191e-11,
+     "X4": 2.4745643076728515e-11
+    },
     "residual_max_abs": 5.724587470723463e-16,
     "kkt_stationarity_max_abs": 4.56237131407633e-11,
     "duality_gap": 5.135003533496274e-12,
-    "seconds": 0.0167388916015625,
+    "complementarity": 2.158820292669228e-10,
+    "seconds": 0.01369166374206543,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 3.3207852814585825e-16,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999999,
     "q0": 1.115027580245061,
     "R_physical": 1.005857422847583,
     "z_highprec": 1.3234265282445015,
     "z_vs_solver_abs_diff": 1.5679666192884164e-16,
-    "fhat_local_minima_lowest3": [
-     [
-      1.167580435552332,
-      -9.438445612024974e-12,
-      -6.837202708060126e-10
-     ]
-    ],
-    "fhat_min_on_grid": 1.272761718820492e-16,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -6.837202709644572e-10,
+      "argmin_t": 1.3632440736321032,
+      "argmin_xi": 1.1675804356155095,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999999,
+      "leading_coefficient": 0.8944731970006808,
+      "n_positive_stationary_points": 2
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -9.438445612024974e-12,
+      "argmin_t": 1.3632440734845734,
+      "argmin_xi": 1.167580435552332,
+      "infimum": -9.438445612024974e-12,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999999,
+      "n_positive_stationary_points": 2
+     },
+     "stationary_point_bound_t": 5.772142162317553,
+     "grid_cross_check": {
+      "xi_max": 2.4618589054682705,
+      "points": 20001,
+      "min_P_on_grid": 7.563101706119983e-08,
+      "min_weighted_on_grid": 1.0443875025775326e-09,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.939954685123446e-202,
+      "P_prime_minus_pi_P": 3.1402038867030624e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 2,
     "rho": 1.0,
@@ -537,15 +637,22 @@
      "X3": 0.8979038942287012,
      "X4": 1.4326848468275268
     },
+    "dual_min_eig": {
+     "X2": 3.463720275836213e-13,
+     "X3": 3.4341246834524726e-12,
+     "X4": 9.388891451803762e-13
+    },
     "residual_max_abs": 4.163336342344337e-16,
     "kkt_stationarity_max_abs": 6.320888257249635e-12,
     "duality_gap": 1.447064690296429e-12,
-    "seconds": 0.014614343643188477,
+    "complementarity": 2.0798301882812842e-11,
+    "seconds": 0.013815164566040039,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "seconds": 0.8
+   "notes": [],
+   "seconds": 1.5
   },
   {
    "m": 3,
@@ -710,7 +817,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 3,
     "rho": 1.158203932499369,
     "basis": "paper",
@@ -740,39 +849,73 @@
      "X3": 0.847841651644653,
      "X4": 1.159697529653859
     },
+    "dual_min_eig": {
+     "X2": 4.916594384299174e-13,
+     "X3": 2.279198673008654e-13,
+     "X4": 3.9334845654013466e-13
+    },
     "residual_max_abs": 2.636779683484747e-16,
     "kkt_stationarity_max_abs": 4.593436742084123e-12,
     "duality_gap": 9.43911615536308e-13,
-    "seconds": 0.02423858642578125,
+    "complementarity": 1.1867938652220661e-11,
+    "seconds": 0.016724824905395508,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 6.482754872401711e-17,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999996,
     "q0": 0.8674206754021571,
     "R_physical": 1.0046500373820373,
     "z_highprec": 1.3216712411056273,
     "z_vs_solver_abs_diff": 3.969198384966541e-16,
-    "fhat_local_minima_lowest3": [
-     [
-      1.7327341966887706,
-      -1.8802271860462025e-13,
-      -2.3473073287957017e-09
-     ],
-     [
-      0.9053925321124761,
-      1.03941425852779e-12,
-      1.3652638467363097e-11
-     ]
-    ],
-    "fhat_min_on_grid": 4.912080638254042e-15,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -2.3473073290791376e-09,
+      "argmin_t": 3.00236779645155,
+      "argmin_xi": 1.7327341967109526,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999996,
+      "leading_coefficient": 0.18214434199094268,
+      "n_positive_stationary_points": 3
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -1.8802271860462025e-13,
+      "argmin_t": 3.0023677963746787,
+      "argmin_xi": 1.7327341966887706,
+      "infimum": -1.8802271860462025e-13,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999996,
+      "n_positive_stationary_points": 4
+     },
+     "stationary_point_bound_t": 15.501488270707645,
+     "grid_cross_check": {
+      "xi_max": 4.03442222433932,
+      "points": 20001,
+      "min_P_on_grid": 6.768798680371047e-08,
+      "min_weighted_on_grid": 2.3400795811723913e-15,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 2.4943264469183335e-202,
+      "P_prime_minus_pi_P": 2.084781182790266e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 3,
     "rho": 1.0,
@@ -803,15 +946,22 @@
      "X3": 0.9240772858475439,
      "X4": 1.1308853929709013
     },
+    "dual_min_eig": {
+     "X2": 2.378340878102913e-11,
+     "X3": 3.3541518421947085e-11,
+     "X4": 2.7387000304444363e-11
+    },
     "residual_max_abs": 7.268449730979398e-12,
     "kkt_stationarity_max_abs": 4.653522012176836e-11,
     "duality_gap": 7.091882636700575e-12,
-    "seconds": 0.025016307830810547,
+    "complementarity": 1.4700851647120317e-10,
+    "seconds": 0.01719045639038086,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "seconds": 0.9
+   "notes": [],
+   "seconds": 1.8
   },
   {
    "m": 5,
@@ -976,7 +1126,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 5,
     "rho": 0.8822852267652049,
     "basis": "paper",
@@ -1010,39 +1162,73 @@
      "X3": 0.946752624948893,
      "X4": 0.9021407259281868
     },
+    "dual_min_eig": {
+     "X2": 1.1795026368992581e-12,
+     "X3": 3.247215282854751e-12,
+     "X4": 8.114455514999883e-12
+    },
     "residual_max_abs": 2.4103982698697735e-13,
     "kkt_stationarity_max_abs": 1.566269336450432e-11,
     "duality_gap": 4.938272013532696e-13,
-    "seconds": 0.0213015079498291,
+    "complementarity": 5.50823781118176e-11,
+    "seconds": 0.021540403366088867,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 1.1417679517227483e-13,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999565,
     "q0": 1.1383706134255518,
     "R_physical": 1.004367574809052,
     "z_highprec": 1.3212327195677758,
     "z_vs_solver_abs_diff": 5.75525611020842e-14,
-    "fhat_local_minima_lowest3": [
-     [
-      2.2616776569119175,
-      -5.4482887147221166e-12,
-      -5.191569795338686e-05
-     ],
-     [
-      1.1874997625346937,
-      -2.763354823229589e-12,
-      -2.319635392403918e-10
-     ]
-    ],
-    "fhat_min_on_grid": 6.7136063487719724e-12,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -5.19156987557051e-05,
+      "argmin_t": 5.1151858336130624,
+      "argmin_xi": 2.261677659086958,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999565,
+      "leading_coefficient": 0.007269687210554123,
+      "n_positive_stationary_points": 4
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -5.4482887147221166e-12,
+      "argmin_t": 5.11518582377458,
+      "argmin_xi": 2.2616776569119175,
+      "infimum": -5.4482887147221166e-12,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999565,
+      "n_positive_stationary_points": 4
+     },
+     "stationary_point_bound_t": 36.164853977413394,
+     "grid_cross_check": {
+      "xi_max": 6.162231468898589,
+      "points": 20001,
+      "min_P_on_grid": 7.749267608633266e-08,
+      "min_weighted_on_grid": 1.7829953524067252e-37,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 2.909440689774644e-202,
+      "P_prime_minus_pi_P": 1.4350074298522885e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 5,
     "rho": 1.0,
@@ -1077,15 +1263,22 @@
      "X3": 0.9018755204431559,
      "X4": 0.882952439552925
     },
+    "dual_min_eig": {
+     "X2": 1.2748069324417933e-12,
+     "X3": 4.103185054308363e-13,
+     "X4": 9.85961630397254e-13
+    },
     "residual_max_abs": 6.600622826091751e-16,
     "kkt_stationarity_max_abs": 2.5489120362987006e-12,
     "duality_gap": -2.7111646261346323e-13,
-    "seconds": 0.021407127380371094,
+    "complementarity": 6.031366854376816e-12,
+    "seconds": 0.0213925838470459,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "seconds": 0.9
+   "notes": [],
+   "seconds": 2.3
   },
   {
    "m": 8,
@@ -1250,7 +1443,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 8,
     "rho": 1.1188103937536804,
     "basis": "paper",
@@ -1290,45 +1485,74 @@
      "X3": 0.8339714533726619,
      "X4": 0.7513095701267095
     },
+    "dual_min_eig": {
+     "X2": 7.328037285112665e-12,
+     "X3": 1.0869162068488005e-11,
+     "X4": 1.1590859852118063e-11
+    },
     "residual_max_abs": 2.983724378680108e-16,
     "kkt_stationarity_max_abs": 1.853961428821549e-11,
     "duality_gap": 1.9471091405875995e-12,
-    "seconds": 0.05085039138793945,
+    "complementarity": 5.675347729749633e-11,
+    "seconds": 0.05356192588806152,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 1.939259874435011e-16,
+    "matching_defect_xi_max": 4.0,
     "tq0": 1.0000000000000002,
     "q0": 0.8976260755554705,
     "R_physical": 1.0042733830357866,
     "z_highprec": 1.3211448821960743,
     "z_vs_solver_abs_diff": 3.886800586368097e-16,
-    "fhat_local_minima_lowest3": [
-     [
-      2.7115561951821276,
-      -1.4035086098016285e-11,
-      -0.15095333218320714
-     ],
-     [
-      1.7693110627937532,
-      -1.0321337158745677e-11,
-      -1.9269205086688686e-07
-     ],
-     [
-      0.9362692267451029,
-      -6.093074221393707e-12,
-      -9.568610329586751e-11
-     ]
-    ],
-    "fhat_min_on_grid": 2.8117075655212242e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -0.15095334940196153,
+      "argmin_t": 7.352537072247711,
+      "argmin_xi": 2.7115562085724334,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 1.0000000000000002,
+      "leading_coefficient": 6.040248134172295e-05,
+      "n_positive_stationary_points": 10
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -1.4035086098016285e-11,
+      "argmin_t": 7.352536999630577,
+      "argmin_xi": 2.7115561951821276,
+      "infimum": -1.4035086098016285e-11,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 1.0000000000000002,
+      "n_positive_stationary_points": 10
+     },
+     "stationary_point_bound_t": 93.21128215575752,
+     "grid_cross_check": {
+      "xi_max": 9.893020077991624,
+      "points": 20001,
+      "min_P_on_grid": 1.0360951419930971e-07,
+      "min_weighted_on_grid": 7.953528258584093e-105,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 2.072025292314499e-202,
+      "P_prime_minus_pi_P": 1.7510312215336708e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 8,
     "rho": 1.0,
@@ -1369,16 +1593,23 @@
      "X3": 0.8659760865071848,
      "X4": 0.9051992524477792
     },
+    "dual_min_eig": {
+     "X2": 7.18590255661914e-13,
+     "X3": 1.4383521176011068e-12,
+     "X4": 1.6405444343412129e-12
+    },
     "residual_max_abs": 3.608224830031759e-16,
     "kkt_stationarity_max_abs": 4.29278834701563e-12,
     "duality_gap": 1.467714838554457e-13,
-    "seconds": 0.03209042549133301,
+    "complementarity": 1.0825048092611388e-11,
+    "seconds": 0.04245758056640625,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "seconds": 1.7
+   "notes": [],
+   "seconds": 3.9
   },
   {
    "m": 10,
@@ -1543,7 +1774,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 10,
     "rho": 1.0936507859961304,
     "basis": "paper",
@@ -1587,44 +1820,73 @@
      "X3": 0.8213550059748966,
      "X4": 0.9722759618565963
     },
+    "dual_min_eig": {
+     "X2": 4.330255798049655e-12,
+     "X3": 1.0897445210649003e-11,
+     "X4": 1.2969162129688996e-11
+    },
     "residual_max_abs": 9.907331031955291e-15,
     "kkt_stationarity_max_abs": 2.2545659783546057e-11,
     "duality_gap": -1.567634910770721e-13,
-    "seconds": 0.07079648971557617,
+    "complementarity": 8.549869953732372e-11,
+    "seconds": 0.04782867431640625,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 7.728775097133706e-15,
+    "matching_defect_xi_max": 4.0,
     "tq0": 1.0000000000000033,
     "q0": 0.9180867661054388,
     "R_physical": 1.0040663133638554,
     "z_highprec": 1.3209248519131604,
     "z_vs_solver_abs_diff": 4.005806371401315e-15,
-    "fhat_local_minima_lowest3": [
-     [
-      2.77011241586718,
-      -3.1012787019699e-11,
-      -0.9143529089586429
-     ],
-     [
-      1.8898074826074167,
-      -7.589348325320982e-12,
-      -5.661094856198049e-07
-     ],
-     [
-      0.9573624393863414,
-      -6.620716781368961e-12,
-      -1.1787301408255107e-10
-     ]
-    ],
-    "fhat_min_on_grid": 4.117332459299392e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -0.9143530522829953,
+      "argmin_t": 7.673522896331313,
+      "argmin_xi": 2.7701124338790497,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 1.0000000000000033,
+      "leading_coefficient": 1.7973453025942785e-07,
+      "n_positive_stationary_points": 12
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -3.1012787019699e-11,
+      "argmin_t": 7.673522796541504,
+      "argmin_xi": 2.77011241586718,
+      "infimum": -3.1012787019699e-11,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 1.0000000000000033,
+      "n_positive_stationary_points": 12
+     },
+     "stationary_point_bound_t": 158.79712767746892,
+     "grid_cross_check": {
+      "xi_max": 12.91266758115233,
+      "points": 20001,
+      "min_P_on_grid": 2.0591311513361285e-07,
+      "min_weighted_on_grid": 1.7033501738338105e-188,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.8121470927074483e-202,
+      "P_prime_minus_pi_P": 3.4912894899246865e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 10,
     "rho": 1.0,
@@ -1669,15 +1931,22 @@
      "X3": 0.8467705632880811,
      "X4": 1.0181017047044134
     },
+    "dual_min_eig": {
+     "X2": 1.7450015626249986e-12,
+     "X3": 1.6590643734827552e-11,
+     "X4": 1.195982602962989e-11
+    },
     "residual_max_abs": 4.0314973581700997e-13,
     "kkt_stationarity_max_abs": 2.242092622672942e-11,
     "duality_gap": 8.664180484174722e-13,
-    "seconds": 0.047537803649902344,
+    "complementarity": 8.446994950836624e-11,
+    "seconds": 0.0478518009185791,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "seconds": 2.3
+   "notes": [],
+   "seconds": 4.6
   },
   {
    "m": 12,
@@ -1842,7 +2111,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 12,
     "rho": 1.1116567713878183,
     "basis": "paper",
@@ -1890,44 +2161,73 @@
      "X3": 0.8064115287988511,
      "X4": 1.1030995913662185
     },
+    "dual_min_eig": {
+     "X2": 3.915646120383802e-11,
+     "X3": 3.5757814347616396e-11,
+     "X4": 2.5150117144627352e-11
+    },
     "residual_max_abs": 2.5780159257360324e-15,
     "kkt_stationarity_max_abs": 3.7363667715339943e-11,
     "duality_gap": -1.0018652574217413e-12,
-    "seconds": 0.05481576919555664,
+    "complementarity": 1.6794879701374776e-10,
+    "seconds": 0.06778383255004883,
     "notes": [
      "settings strict: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 1.5630987253431454e-15,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999998,
     "q0": 0.9032005337314699,
     "R_physical": 1.0040489892436804,
     "z_highprec": 1.320917530075004,
     "z_vs_solver_abs_diff": 5.513805071435155e-17,
-    "fhat_local_minima_lowest3": [
-     [
-      2.7263997529226405,
-      -6.937203496395977e-11,
-      -0.9614852460382703
-     ],
-     [
-      3.634503078082371,
-      -5.935478545576014e-11,
-      -62566065.9211365
-     ],
-     [
-      1.8553995901294917,
-      -3.260240018713755e-11,
-      -1.6222791802020576e-06
-     ]
-    ],
-    "fhat_min_on_grid": -5.1844140513271397e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -62582017.25073478,
+      "argmin_t": 13.209774883032175,
+      "argmin_xi": 3.6345253999706997,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999998,
+      "leading_coefficient": 7.988696231576074e-11,
+      "n_positive_stationary_points": 14
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -6.937203496395977e-11,
+      "argmin_t": 7.433255612736636,
+      "argmin_xi": 2.7263997529226405,
+      "infimum": -6.937203496395977e-11,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999998,
+      "n_positive_stationary_points": 14
+     },
+     "stationary_point_bound_t": 202.5669802887505,
+     "grid_cross_check": {
+      "xi_max": 14.584077938052443,
+      "points": 20001,
+      "min_P_on_grid": -61625852.86938385,
+      "min_weighted_on_grid": -5.866457665892423e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.6280166665349182e-202,
+      "P_prime_minus_pi_P": 2.732530367869312e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 12,
     "rho": 1.0,
@@ -1976,16 +2276,23 @@
      "X3": 0.83429416036733,
      "X4": 1.0223220035853207
     },
+    "dual_min_eig": {
+     "X2": 5.2563952139570215e-11,
+     "X3": 6.712628377860732e-11,
+     "X4": 5.214901319169226e-11
+    },
     "residual_max_abs": 9.140241054262851e-15,
     "kkt_stationarity_max_abs": 1.1950992973019936e-10,
     "duality_gap": 2.8839153287663066e-12,
-    "seconds": 0.08262372016906738,
+    "complementarity": 3.6573099128182907e-10,
+    "seconds": 0.10700082778930664,
     "notes": [
      "settings strict: optimal_inaccurate",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "seconds": 2.6
+   "notes": [],
+   "seconds": 6.3
   },
   {
    "m": 15,
@@ -2150,7 +2457,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 22,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 15,
     "rho": 1.0393655353874813,
     "basis": "paper",
@@ -2204,45 +2513,74 @@
      "X3": 0.8155070479651259,
      "X4": 1.1327105365710453
     },
+    "dual_min_eig": {
+     "X2": 2.2630485381296564e-11,
+     "X3": 3.237511801428946e-11,
+     "X4": 2.2937923691108736e-11
+    },
     "residual_max_abs": 1.214713008998447e-15,
     "kkt_stationarity_max_abs": 4.125580432834397e-11,
     "duality_gap": -1.2163603457793215e-12,
-    "seconds": 0.1868736743927002,
+    "complementarity": 1.8202558969664107e-10,
+    "seconds": 0.23245644569396973,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 7.579030957947543e-16,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999998,
     "q0": 0.9660167301494216,
     "R_physical": 1.0040444959250179,
     "z_highprec": 1.320914086305912,
     "z_vs_solver_abs_diff": 1.2944278387959072e-16,
-    "fhat_local_minima_lowest3": [
-     [
-      2.916178546790555,
-      -6.622882707644838e-11,
-      -26.536054681848718
-     ],
-     [
-      3.9196625507097482,
-      -4.201937517030877e-11,
-      -38493992005.091545
-     ],
-     [
-      3.747020913120792,
-      -2.6734648544082955e-11,
-      -382952224.1267294
-     ]
-    ],
-    "fhat_min_on_grid": -2.944415914409059e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -38496217983.78972,
+      "argmin_t": 15.363791322333466,
+      "argmin_xi": 3.9196672463786344,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999998,
+      "leading_coefficient": 2.0087021815765542e-14,
+      "n_positive_stationary_points": 14
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -6.622882707644838e-11,
+      "argmin_t": 8.504097316761472,
+      "argmin_xi": 2.916178546790555,
+      "infimum": -6.622882707644838e-11,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999998,
+      "n_positive_stationary_points": 14
+     },
+     "stationary_point_bound_t": 315.9551027890929,
+     "grid_cross_check": {
+      "xi_max": 18.214084054065072,
+      "points": 20001,
+      "min_P_on_grid": -38494878513.423225,
+      "min_weighted_on_grid": -4.201171523604604e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 2.7082051405410272e-202,
+      "P_prime_minus_pi_P": 1.1410502514054612e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 15,
     "rho": 1.0,
@@ -2297,16 +2635,23 @@
      "X3": 0.8560199931395764,
      "X4": 1.8668271031720378
     },
+    "dual_min_eig": {
+     "X2": 1.6257446664959254e-14,
+     "X3": 3.547901442341944e-14,
+     "X4": 1.393526898257251e-14
+    },
     "residual_max_abs": 8.889134999189291e-11,
     "kkt_stationarity_max_abs": 5.704325900524054e-13,
     "duality_gap": -2.930988785010413e-14,
-    "seconds": 0.3232450485229492,
+    "complementarity": 2.0450335869171e-11,
+    "seconds": 0.2337334156036377,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "seconds": 6.1
+   "notes": [],
+   "seconds": 11.6
   },
   {
    "m": 20,
@@ -2471,7 +2816,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 21,
+   "n_rejected": 1,
+   "best_accepted": {
     "m": 20,
     "rho": 1.2310063218873553,
     "basis": "paper",
@@ -2535,44 +2882,80 @@
      "X3": 0.8023553066650347,
      "X4": 1.0204620457359588
     },
+    "dual_min_eig": {
+     "X2": 6.963155131447487e-11,
+     "X3": 4.9782370305412537e-11,
+     "X4": 2.9098043984669355e-11
+    },
     "residual_max_abs": 1.1832084655582706e-15,
     "kkt_stationarity_max_abs": 5.3255594378853743e-11,
     "duality_gap": -8.270939488852491e-12,
-    "seconds": 0.8202409744262695,
+    "complementarity": 2.377151513827114e-10,
+    "seconds": 0.6949608325958252,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 7.594051957198926e-16,
+    "matching_defect_xi_max": 4.0,
     "tq0": 1.0000000000000004,
     "q0": 0.8155468516662066,
     "R_physical": 1.003943330196429,
     "z_highprec": 1.320828040239118,
     "z_vs_solver_abs_diff": 5.034459146845387e-16,
-    "fhat_local_minima_lowest3": [
-     [
-      3.2799145539838914,
-      -8.619953857383994e-11,
-      -41043.72300107372
-     ],
-     [
-      2.4330256131003227,
-      -2.6284929887065533e-11,
-      -0.003135361989550636
-     ],
-     [
-      2.487038350585363,
-      -1.212438977742766e-11,
-      -0.0033328708318828126
-     ]
-    ],
-    "fhat_min_on_grid": -2.563940172021849e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -1.3637797214463315e+22,
+      "argmin_t": 23.848300527356507,
+      "argmin_xi": 4.8834721794391855,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 1.0000000000000004,
+      "leading_coefficient": 1.5308791983048144e-22,
+      "n_positive_stationary_points": 23
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -1.0238734548743297e-10,
+      "argmin_t": 16.57732115121909,
+      "argmin_xi": 4.071525654004785,
+      "infimum": -1.0238734548743297e-10,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 1.0000000000000004,
+      "n_positive_stationary_points": 24
+     },
+     "stationary_point_bound_t": 558.1694108672954,
+     "grid_cross_check": {
+      "xi_max": 24.20904544608606,
+      "points": 20001,
+      "min_P_on_grid": -1.1794977516985684e+22,
+      "min_weighted_on_grid": -3.470604472693628e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.300961262968096e-202,
+      "P_prime_minus_pi_P": 1.3971419617494533e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
+   },
+   "lowest_rejected": {
+    "rho": 1.188196601125,
+    "objective": 1.320830488428524,
+    "status": "optimal_inaccurate",
+    "solver": "CLARABEL 0.11.1 (settings reg1e-6)",
+    "R_physical": 1.0039350570728163,
+    "note": "rejected by the acceptance rule; not a candidate"
    },
    "rho1": {
     "m": 20,
@@ -2638,16 +3021,23 @@
      "X3": 0.8120223957480579,
      "X4": 1.3096130768281873
     },
+    "dual_min_eig": {
+     "X2": 2.3322713316250104e-11,
+     "X3": 2.60573243978199e-11,
+     "X4": 1.5059004993002742e-11
+    },
     "residual_max_abs": 2.2074952667423583e-10,
     "kkt_stationarity_max_abs": 2.7533184066008687e-11,
     "duality_gap": -3.786748692391484e-12,
-    "seconds": 0.723344087600708,
+    "complementarity": 3.1637159732256226e-10,
+    "seconds": 0.65020751953125,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "seconds": 19.6
+   "notes": [],
+   "seconds": 28.0
   },
   {
    "m": 25,
@@ -2788,7 +3178,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 18,
+   "n_rejected": 0,
+   "best_accepted": {
     "m": 25,
     "rho": 1.2496894379984858,
     "basis": "paper",
@@ -2862,45 +3254,74 @@
      "X3": 0.7668340799511026,
      "X4": 1.0477285306697217
     },
+    "dual_min_eig": {
+     "X2": 5.97989380950612e-11,
+     "X3": 4.0880553040065e-11,
+     "X4": 2.967565831810368e-11
+    },
     "residual_max_abs": 1.1854449713522008e-13,
     "kkt_stationarity_max_abs": 4.740630110688926e-11,
     "duality_gap": -6.288303211476887e-12,
-    "seconds": 1.4314141273498535,
+    "complementarity": 2.361666607718013e-10,
+    "seconds": 1.2954978942871094,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 5.688629090852e-14,
+    "matching_defect_xi_max": 4.0,
     "tq0": 0.9999999999999974,
     "q0": 0.8033311225356938,
     "R_physical": 1.0039144190483265,
     "z_highprec": 1.3208128207280245,
     "z_vs_solver_abs_diff": 3.56965744376468e-15,
-    "fhat_local_minima_lowest3": [
-     [
-      3.2304789102190745,
-      -9.202293053764325e-11,
-      -15941.144096412787
-     ],
-     [
-      2.400782310160886,
-      -4.608559303292113e-11,
-      -0.0033689701874972345
-     ],
-     [
-      1.6532449442539268,
-      -9.56382572557338e-12,
-      -5.125908111643535e-08
-     ]
-    ],
-    "fhat_min_on_grid": 1.251685873676945e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -6.121628099147698e+30,
+      "argmin_t": 30.254605177910435,
+      "argmin_xi": 5.500418636604893,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 0.9999999999999974,
+      "leading_coefficient": 8.085363444271422e-31,
+      "n_positive_stationary_points": 29
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -1.0622626256072153e-10,
+      "argmin_t": 23.13980032286325,
+      "argmin_xi": 4.810384633567596,
+      "infimum": -1.0622626256072153e-10,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 0.9999999999999974,
+      "n_positive_stationary_points": 30
+     },
+     "stationary_point_bound_t": 849.8876459397304,
+     "grid_cross_check": {
+      "xi_max": 29.872763987229522,
+      "points": 20001,
+      "min_P_on_grid": -1007680388985.9379,
+      "min_weighted_on_grid": -8.850277968499584e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.3998702544127515e-202,
+      "P_prime_minus_pi_P": 1.3927103760729355e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
    },
+   "lowest_rejected": null,
    "rho1": {
     "m": 25,
     "rho": 1.0,
@@ -2975,17 +3396,24 @@
      "X3": 0.7705275973005867,
      "X4": 1.4957410120172958
     },
+    "dual_min_eig": {
+     "X2": 1.3376210342572525e-11,
+     "X3": 1.5454912223280114e-11,
+     "X4": 6.915647224128564e-12
+    },
     "residual_max_abs": 2.9770234671530615e-13,
     "kkt_stationarity_max_abs": 2.1674266548199483e-11,
     "duality_gap": -2.190247982980509e-12,
-    "seconds": 2.5844743251800537,
+    "complementarity": 9.43047750350326e-11,
+    "seconds": 2.1983108520507812,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: optimal_inaccurate",
      "settings reg1e-6: optimal"
     ]
    },
-   "seconds": 31.0
+   "notes": [],
+   "seconds": 46.7
   },
   {
    "m": 30,
@@ -2993,7 +3421,7 @@
    "rho_grid": [
     [
      0.9,
-     Infinity
+     null
     ],
     [
      0.95,
@@ -3126,7 +3554,9 @@
      "optimal"
     ]
    ],
-   "best": {
+   "n_accepted": 13,
+   "n_rejected": 5,
+   "best_accepted": {
     "m": 30,
     "rho": 1.1852549156242114,
     "basis": "paper",
@@ -3210,45 +3640,81 @@
      "X3": 0.8291833283117449,
      "X4": 1.521605726424259
     },
+    "dual_min_eig": {
+     "X2": 1.1291585353922678e-12,
+     "X3": 1.0354795287691204e-12,
+     "X4": 3.4062751685252393e-13
+    },
     "residual_max_abs": 2.2026291381094243e-12,
     "kkt_stationarity_max_abs": 5.339728659237153e-12,
     "duality_gap": -7.933653733971369e-13,
-    "seconds": 2.451988458633423,
+    "complementarity": 1.994931997373328e-15,
+    "seconds": 2.0701262950897217,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: solver error (NumericalError)",
      "settings reg1e-6: optimal"
     ]
    },
-   "best_acceptable_1e-7": true,
-   "best_acceptable_1e-6": true,
    "highprec_check": {
     "dps": 200,
     "matching_defect_fn_max": 1.3601418772105935e-12,
+    "matching_defect_xi_max": 4.0,
     "tq0": 1.0000000000000098,
     "q0": 0.8469874900287968,
     "R_physical": 1.0038960860288342,
     "z_highprec": 1.3207724005533545,
     "z_vs_solver_abs_diff": 1.2779073507883571e-14,
-    "fhat_local_minima_lowest3": [
-     [
-      3.331924512301916,
-      -3.254364025180041e-11,
-      -45644.84002508323
-     ],
-     [
-      1.7489672660601978,
-      -1.455112129558319e-12,
-      -2.169546024059102e-08
-     ],
-     [
-      1.6303203151501329,
-      -1.1936902338791397e-12,
-      -5.050426259101525e-09
-     ]
-    ],
-    "fhat_min_on_grid": -2.79077372697646e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "fourier": {
+     "variable": "t = xi^2 >= 0; fhat(xi) = P(xi^2) exp(-pi xi^2), P = Tq",
+     "unweighted_P": {
+      "min_value": -5.529386562575751e+36,
+      "argmin_t": 34.88846127649716,
+      "argmin_xi": 5.906645518100537,
+      "unbounded_below": false,
+      "tail": "+inf",
+      "value_at_t0": 1.0000000000000098,
+      "leading_coefficient": 5.802457281912243e-41,
+      "n_positive_stationary_points": 35
+     },
+     "weighted_P_exp_minus_pi_t": {
+      "min_value_attained": -7.668862084570372e-11,
+      "argmin_t": 18.134682640765714,
+      "argmin_xi": 4.258483608136318,
+      "infimum": -7.668862084570372e-11,
+      "infimum_attained": true,
+      "tail": "-> 0 from the + side (leading coefficient sign)",
+      "value_at_t0": 1.0000000000000098,
+      "n_positive_stationary_points": 36
+     },
+     "stationary_point_bound_t": 1146.9948481687845,
+     "grid_cross_check": {
+      "xi_max": 34.703668258229186,
+      "points": 20001,
+      "min_P_on_grid": -5.155262555145654e+36,
+      "min_weighted_on_grid": -1.29588851792261e-11,
+      "consistent_unweighted": true,
+      "consistent_weighted": true
+     },
+     "root_residual_max_rel": {
+      "P_prime": 1.5496660065299941e-202,
+      "P_prime_minus_pi_P": 1.4597233720175906e-202
+     },
+     "polyroots_converged": true,
+     "reliable": true,
+     "limitations": [],
+     "dps": 200,
+     "rigor": "numerical-high-precision diagnostic of the float candidate; not a certificate"
+    },
+    "note": "Tq of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over xi in [0, matching_defect_xi_max] of |E(xi^2)| exp(-pi xi^2)"
+   },
+   "lowest_rejected": {
+    "rho": 1.17360679775,
+    "objective": 1.32077217925764,
+    "status": "optimal_inaccurate",
+    "solver": "CLARABEL 0.11.1 (settings reg1e-6)",
+    "R_physical": 1.0038947578290407,
+    "note": "rejected by the acceptance rule; not a candidate"
    },
    "rho1": {
     "m": 30,
@@ -3334,17 +3800,24 @@
      "X3": 0.7900747995908413,
      "X4": 1.5422277931168924
     },
+    "dual_min_eig": {
+     "X2": 3.84485016500043e-11,
+     "X3": 4.5021370410411974e-11,
+     "X4": 2.209370220296888e-11
+    },
     "residual_max_abs": 1.7251118068772886e-12,
     "kkt_stationarity_max_abs": 3.9669156848276543e-11,
     "duality_gap": -8.61732907253554e-12,
-    "seconds": 2.25949764251709,
+    "complementarity": 2.8892068121635917e-10,
+    "seconds": 2.0763189792633057,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: solver error (NumericalError)",
      "settings reg1e-6: optimal"
     ]
    },
-   "seconds": 47.7
+   "notes": [],
+   "seconds": 68.7
   },
   {
    "m": 40,
@@ -3352,105 +3825,33 @@
    "rho_grid": [
     [
      0.9,
-     Infinity
+     null
     ],
     [
      0.95,
-     Infinity
+     null
     ],
     [
      1.0,
-     Infinity
+     null
     ],
     [
      1.05,
-     Infinity
+     null
     ],
     [
      1.1,
-     Infinity
+     null
     ],
     [
      1.2,
-     Infinity
+     null
     ]
    ],
    "rho_evaluations": [
     [
-     0.850310562002,
-     1.3207746928376771,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.850502499874,
-     1.3207746919268721,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.850813061876,
-     1.3207746878851416,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.85131556175,
-     1.320774674402109,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.852128623625,
-     1.3207746350221388,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.853444185375,
-     1.3207745275818985,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.855572809,
-     1.3207742599618872,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.859016994375,
-     1.3207737021702861,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.864589803375,
-     1.3207729342412264,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.87360679775,
-     1.3207723772146527,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.888196601125,
-     1.320770176946197,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
      0.9,
      1.3207649070632292,
-     false,
-     "optimal_inaccurate"
-    ],
-    [
-     0.911803398875,
-     1.3207638837347757,
      false,
      "optimal_inaccurate"
     ],
@@ -3485,150 +3886,17 @@
      "optimal_inaccurate"
     ]
    ],
-   "best": {
-    "m": 40,
-    "rho": 0.8881966011250105,
-    "basis": "paper",
+   "n_accepted": 0,
+   "n_rejected": 6,
+   "best_accepted": null,
+   "highprec_check": null,
+   "lowest_rejected": {
+    "rho": 1.2,
+    "objective": 1.320758196351233,
     "status": "optimal_inaccurate",
     "solver": "CLARABEL 0.11.1 (settings reg1e-6)",
-    "objective": 1.320770176946197,
-    "q_w": [
-     1.077843466189124,
-     0.10818681708036368,
-     -0.06817455471460511,
-     0.006133210269332095,
-     0.04475663138942425,
-     0.032306072879457415,
-     0.003876460602489463,
-     0.000141500680740635,
-     -0.008336672307077976,
-     0.0006144307109378078,
-     0.004625962246222222,
-     0.0006809707290780457,
-     -0.00020240500997970533,
-     0.0015353063569895561,
-     0.00012349130664610422,
-     -0.0005618421656498583,
-     -0.000731214016929051,
-     0.0005709154016639599,
-     0.0007195335499859349,
-     -0.00016308759715301727,
-     -0.00028231092834124505,
-     0.0002796210616288798,
-     0.0005131251546311721,
-     0.0007013082211695023,
-     0.0009613078080437978,
-     0.0013874059825022926,
-     0.001337488400995436,
-     0.0010963547356314524,
-     0.00044735837339603124,
-     -0.00017010622939311795,
-     -0.00059309254425018,
-     -0.0005388550843753101,
-     1.2329711666776016e-05,
-     0.0005258509845034176,
-     0.00039104609730557585,
-     0.000268392327537649,
-     0.0002547375015724482,
-     0.0005817406290647628,
-     0.0009939771064307453,
-     0.0011584006432220598,
-     0.001026291546142222,
-     0.0007200254940822066,
-     0.0003914505445520326,
-     5.326929662917337e-05,
-     -0.00030870550265605767,
-     -0.00044585560283922303,
-     -0.00022466258285958464,
-     0.00010921222828200357,
-     0.00026257679315771273,
-     0.000242103283470331,
-     5.706887245248912e-05,
-     -0.0001006476588865093,
-     -9.677363045355967e-05,
-     8.243893555688348e-05,
-     0.0002267121779977281,
-     0.00027020641899223397,
-     0.00023473086335496851,
-     0.00021482331436959063,
-     0.00016401325425198315,
-     0.00019032044127839317,
-     6.837943132272716e-05,
-     4.380120312587144e-05,
-     -0.00015404048473417097,
-     -2.8999574270384323e-05,
-     -0.00012086524574842996,
-     9.950852411125737e-05,
-     4.1023331325021e-05,
-     0.00011713406164986588,
-     6.777165812203205e-05,
-     -3.3822794605556784e-05,
-     -2.387779338016555e-05,
-     -5.5322713425220386e-05,
-     1.6216026375087764e-05,
-     5.9914978581305286e-05,
-     1.89691502240349e-05,
-     2.531419890516081e-05,
-     -1.9227778838676302e-05,
-     -2.1300379441173065e-05,
-     2.103197192148467e-05,
-     3.2283046997701896e-05,
-     2.4666125206810456e-05,
-     3.626755820475816e-05
-    ],
-    "q0": 1.1302234789696644,
-    "tq0": 0.9999999999999781,
-    "R_physical": 1.0038606525325626,
-    "gram_min_eig": {
-     "X2": -8.46731081167345e-11,
-     "X3": -2.2801196666377876e-12,
-     "X4": -2.32462023388347e-10
-    },
-    "gram_max_eig": {
-     "X2": 1.1893109207349422,
-     "X3": 0.8466022625680658,
-     "X4": 2.1641303400393177
-    },
-    "residual_max_abs": 9.642652121384914e-12,
-    "kkt_stationarity_max_abs": 1.1627413182735007e-12,
-    "duality_gap": -1.3433698597964394e-13,
-    "seconds": 6.858555555343628,
-    "notes": [
-     "settings strict: solver error (NumericalError)",
-     "settings reg1e-7-noequil: solver error (NumericalError)",
-     "settings reg1e-6: optimal_inaccurate",
-     "solver reported OPTIMAL_INACCURATE"
-    ]
-   },
-   "best_acceptable_1e-7": false,
-   "best_acceptable_1e-6": false,
-   "highprec_check": {
-    "dps": 200,
-    "matching_defect_fn_max": 6.208748097335464e-12,
-    "tq0": 0.9999999999999803,
-    "q0": 1.1302234789696666,
-    "R_physical": 1.0038606525325624,
-    "z_highprec": 1.3207701769462232,
-    "z_vs_solver_abs_diff": 2.6109389902991908e-14,
-    "fhat_local_minima_lowest3": [
-     [
-      2.2170542556665014,
-      1.1660307972455711e-11,
-      5.930201650071326e-05
-     ],
-     [
-      1.1784494955487408,
-      4.300291593130344e-11,
-      3.3749419501062643e-09
-     ],
-     [
-      2.1619029858855545,
-      8.713375192027323e-11,
-      0.0002075114535387071
-     ]
-    ],
-    "fhat_min_on_grid": 1.8111810074352442e-11,
-    "note": "xi in units of the undilated function; entries (xi, fhat(xi), Tq(xi^2)); fhat of the float candidate itself, so negative values measure its Fourier-side infeasibility; matching_defect_fn_max = max over the grid of |E(xi^2)| exp(-pi xi^2)"
+    "R_physical": 1.0038623877975765,
+    "note": "rejected by the acceptance rule; not a candidate"
    },
    "rho1": {
     "m": 40,
@@ -3734,10 +4002,16 @@
      "X3": 0.9181436812818591,
      "X4": 2.3083622584595376
     },
+    "dual_min_eig": {
+     "X2": 9.794316255676e-13,
+     "X3": 1.0853766186110171e-12,
+     "X4": 4.350987592980672e-13
+    },
     "residual_max_abs": 1.887905566469797e-10,
     "kkt_stationarity_max_abs": 1.674793637107541e-11,
     "duality_gap": -7.347455976969286e-13,
-    "seconds": 7.24626612663269,
+    "complementarity": 1.887854803039879e-11,
+    "seconds": 7.291022539138794,
     "notes": [
      "settings strict: solver error (NumericalError)",
      "settings reg1e-7-noequil: solver error (NumericalError)",
@@ -3745,7 +4019,20 @@
      "solver reported OPTIMAL_INACCURATE"
     ]
    },
-   "seconds": 134.6
+   "notes": [
+    "no accepted solve on the rho grid: bracket search skipped"
+   ],
+   "seconds": 44.6
   }
- ]
+ ],
+ "witness_file": {
+  "path": "s1_witnesses.json",
+  "sha256": "b50539e23d398b75bf17bad32ee00d560d9761e6cc3fa4c471e772a61416176f",
+  "degrees": [
+   1,
+   10,
+   30
+  ]
+ },
+ "nonfinite_values_replaced_by_null": []
 }
